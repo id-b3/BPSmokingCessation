@@ -13,6 +13,8 @@ NR==1 {
     }
 }
 
+# For each origintal field, split by ;, and replace with comma.
+# If empty, just place comma until there are 9 fields. Then new line.
 NR>1 {
     for(f=1;f<=NF;f++) {
         split($f,a,";");

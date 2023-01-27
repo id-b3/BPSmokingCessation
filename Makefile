@@ -24,11 +24,11 @@ requirements: test_environment
 
 ## Make Dataset
 data:
-	$(MAKE) -f ./src/data/make_data.mk -C ./
+	$(MAKE) -f ./src/data/make_data.mk -C $(PROJECT_DIR)
 
 ## Describe Dataset
 data_summary:
-	$(MAKE) -f ./src/features/describe.mk -C ./
+	$(MAKE) -f ./src/data/test_norm.mk -C $(PROJECT_DIR)
 
 ## Delete all compiled Python files
 clean:
