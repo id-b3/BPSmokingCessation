@@ -6,8 +6,8 @@ SHELL := bash
 
 VPATH=./data/processed/
 
-COL_SUM=./data/processed/db_summary.csv
-BP_CSV=./data/processed/bronchial_parameter_db.csv
+COL_SUM=$(VPATH)db_summary.csv
+BP_CSV=bronchial_parameter_db.csv
 
 FILTER_COLS=age,gender,smoking
 

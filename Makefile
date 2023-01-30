@@ -26,9 +26,13 @@ requirements: test_environment
 data:
 	$(MAKE) -f ./src/data/make_data.mk -C $(PROJECT_DIR)
 
-## Describe Dataset
-data_summary:
-	$(MAKE) -f ./src/data/test_norm.mk -C $(PROJECT_DIR)
+## Summary of every variable in the dataset
+data_describe:
+	$(MAKE) -f ./src/features/describe.mk -C $(PROJECT_DIR)
+
+## Test the variables for normality
+test_norm:
+	$(MAKE) -f ./src/features/test_norm.mk -C $(PROJECT_DIR)
 
 ## Delete all compiled Python files
 clean:
