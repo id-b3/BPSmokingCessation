@@ -59,12 +59,29 @@ df['asthma_diagnosis'] = df['asthma_diagnosis_adu_q_1'].fillna(
             df['elon_asthma_adu_q_06'])))
 df['cancer_type'] = df['cancer_type_adu_q_1'].fillna(df['cancer_type_adu_q_2'])
 
+df['copd_diagnosis'].replace([1, 2], ['True', 'False'], inplace=True)
+df['asthma_diagnosis'].replace([1, 2], ['True', 'False'], inplace=True)
+
+df['breathing_problems_adu_q_1'].replace([1, 2], ['BREATHING', 'False'],
+                                         inplace=True)
+df['coughing_presence_adu_q_1'].replace([1, 2], ['COUGHING', 'False'],
+                                        inplace=True)
+df['wheezing_presence_adu_q_1'].replace([1, 2], ['WHEEZE', 'False'],
+                                        inplace=True)
+df['elon_wheeze_adu_q_01'].replace([1, 2], ['WHEEZE', 'False'], inplace=True)
+
+df['resp_other'] = df['wheezing_presence_adu_q_1'].fillna(
+    df['elon_wheeze_adu_q_01'].fillna(df['coughing_presence_adu_q_1'].fillna(
+        df['breathing_problems_adu_q_1'])))
+
 df.drop([
     'copd_presence_adu_q_1', 'copd_presence_adu_q_2',
     'spirometry_copd_all_q_1_max', 'spirometry_astma_all_q_1_max',
     'spirometry_astma_all_q_1_max2', 'elon_copd_adu_q_13',
     'elon_asthma_adu_q_06', 'asthma_diagnosis_adu_q_1', 'cancer_type_adu_q_1',
-    'cancer_type_adu_q_2'
+    'cancer_type_adu_q_2', 'breathing_problems_adu_q_1',
+    'coughing_presence_adu_q_1', 'wheezing_presence_adu_q_1',
+    'elon_wheeze_adu_q_01'
 ],
         inplace=True,
         axis=1)
