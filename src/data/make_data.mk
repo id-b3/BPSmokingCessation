@@ -44,4 +44,6 @@ $(SPLT_CSV): $(SEG_CSV)
 
 # Convert the SPSS files into CSV files
 $(CSV_FILES): $(DINT)%.csv : %.sav
-	pspp-convert $< $@
+	pspp-convert $< $@_nonan.csv
+	# Replace $$5, $$6, $$7 with nan
+	sed 's/\$$[0-9]//g' $@_nonan.csv > $@
