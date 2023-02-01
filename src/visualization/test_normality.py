@@ -13,14 +13,19 @@ output_dir = Path("./reports/figures/test_normal/")
 output_dir.mkdir(parents=True, exist_ok=True)
 
 df = pd.read_csv(sys.stdin)
-df_male = df[df.gender == "MALE"]
-df_female = df[df.gender == "FEMALE"]
+df_healthy = df[df.GOLD_stage == "0"]
+df_unhealthy = df[df.GOLD_stage != "0"]
+df_male_h = df_healthy[df_healthy.gender == "MALE"]
+df_female_h = df_healthy[df_healthy.gender == "FEMALE"]
+df_male_u = df_unhealthy[df_unhealthy.gender == "MALE"]
+df_female_u = df_unhealthy[df_unhealthy.gender == "FEMALE"]
 
 
-def run_test(data, male: bool = True):
+def run_test(data, male: bool = True, healthy: bool = True):
     gender_title = "Male" if male else "Female"
+    health_title = "Healthy" if healthy else "Non-Healthy"
     var_name = data.columns[0].replace("_", " ").title()
-    var_name += f" {gender_title}"
+    var_name += f" {health_title} {gender_title}"
     logging.info(f"Testing normality for {var_name}")
 
     fig, axs = plt.subplots(2, 2, figsize=(12, 8))
@@ -101,11 +106,13 @@ def run_test(data, male: bool = True):
     axs[1, 1].axis('off')
 
     plt.subplots_adjust(hspace=0.4)
-    plt.savefig(str(output_dir / f'{var_name}_{gender_title}_norm_test.png'),
+    plt.savefig(str(output_dir / f'{var_name}_norm_test.png'),
                 dpi=300)
     plt.close()
     logging.info("Done testing normality")
 
 
-run_test(df_male, True)
-run_test(df_female, False)
+run_test(df_male_h, True, True)
+run_test(df_female_h, False, True)
+run_test(df_male_u, True, False)
+run_test(df_female_u, False, False)
