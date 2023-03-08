@@ -13,7 +13,7 @@ CSV_FILES=$(DINT)1a_q_1.csv $(DINT)1a_v_1.csv $(DINT)2a_q_2.csv $(DINT)2a_v_1.cs
 
 BP_COLS=bp_wap,bp_la,bp_wt,bp_ir,bp_or
 
-SEG_CSV=segmentation_review_final.csv
+SEG_CSV=final_bp_list.csv
 SCN_CSV=participant_age-at-scan.csv
 SPLT_CSV=$(DINT)formatted_bp_data.csv
 MRG_CSV=$(DINT)data_merged.csv
