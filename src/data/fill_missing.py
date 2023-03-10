@@ -8,7 +8,6 @@ import pandas as pd
 df = pd.read_csv(sys.stdin, index_col=0)
 outpath = Path("./data/processed/")
 
-
 # ------ PARTICIPANT CHARACTERISTICS
 # Fill in missing gender values, drop the other columns
 df['gender'].fillna(df['gender_first'], inplace=True)
@@ -38,9 +37,7 @@ df['age_5yr'] = pd.cut(df['age_at_scan'],
                        labels=age_label_5,
                        right=False)
 
-age_label_10 = [
-    '40-50', '50-60', '60-70', '70-80', '80-90', '90-100'
-]
+age_label_10 = ['40-50', '50-60', '60-70', '70-80', '80-90', '90-100']
 age_cut_10 = np.linspace(40, 100, 7)
 
 df['age_10yr'] = pd.cut(df['age_at_scan'],
@@ -50,33 +47,46 @@ df['age_10yr'] = pd.cut(df['age_at_scan'],
 
 # ------ SMOKING
 # Smoking merge and fill
-df['never_smoker'] = df['never_smoker_adu_c_12'].fillna(
-    df['never_smoker_adu_c_1'])
+df['never_smoker'] = df['never_smoker_adu_c_1'].fillna(
+    df['never_smoker_adu_c_12'].fillna(df['never_smoker_adu_c_12_2']))
 df['ever_smoker'] = df['ever_smoker_adu_c_22'].fillna(
     df['ever_smoker_adu_c_2'])
-df['current_smoker'] = df['current_smoker_adu_c_22'].fillna(
-    df['current_smoker_adu_c_2'])
-df['ex_smoker'] = df['ex_smoker_adu_c_22'].fillna(df['ex_smoker_adu_c_2'])
+df['current_smoker'] = df['current_smoker_adu_c_2'].fillna(
+    df['current_smoker_adu_c_22'].fillna(
+        df['current_smoker_adu_c_22_2'].fillna(
+            df['current_smoker_adu_c_22_3'].fillna(
+                df['current_smoker_adu_c_22_4']))))
+df['ex_smoker'] = df['ex_smoker_adu_c_2'].fillna(
+    df['ex_smoker_adu_c_22'].fillna(df['ex_smoker_adu_c_22_2'].fillna(
+        df['ex_smoker_adu_c_22_3'])))
 df['pack_years'] = df['packyears_cumulative_adu_c_22'].fillna(
     df['packyears_cumulative_adu_c_2'])
-df['recent_starter'] = df['recent_starter_adu_c_22'].fillna(
-    df['recent_starter_adu_c_2'])
-df['recent_starter'] = df['recent_starter_adu_c_22'].fillna(
-    df['recent_starter_adu_c_2'])
+# df['recent_starter'] = df['recent_starter_adu_c_22'].fillna(
+#     df['recent_starter_adu_c_2'])
+# df['recent_starter'] = df['recent_starter_adu_c_22'].fillna(
+#     df['recent_starter_adu_c_2'])
 df['smoking_endage'] = df['smoking_endage_adu_c_22'].fillna(
     df['smoking_endage_adu_c_2'])
 
-df.drop([
-    'ever_smoker_adu_c_2', 'ever_smoker_adu_c_22', 'never_smoker_adu_c_1',
-    'never_smoker_adu_c_12', 'current_smoker_adu_c_2',
-    'current_smoker_adu_c_22', 'ex_smoker_adu_c_2', 'ex_smoker_adu_c_22',
-    'packyears_cumulative_adu_c_2', 'packyears_cumulative_adu_c_22',
-    'recent_starter_adu_c_2', 'recent_starter_adu_c_22',
-    'smoking_endage_adu_c_2', 'smoking_endage_adu_c_22',
-    'smoking_endage_adu_q_1', 'smoking_endage_adu_q_12'
-],
-        axis=1,
-        inplace=True)
+df.drop(
+    [
+        'ever_smoker_adu_c_2',
+        'ever_smoker_adu_c_22',
+        'never_smoker_adu_c_1',
+        'never_smoker_adu_c_12',
+        'current_smoker_adu_c_2',
+        'current_smoker_adu_c_22',
+        'ex_smoker_adu_c_2',
+        'ex_smoker_adu_c_22',
+        'packyears_cumulative_adu_c_2',
+        'packyears_cumulative_adu_c_22',
+        # 'recent_starter_adu_c_2', 'recent_starter_adu_c_22',
+        'smoking_endage_adu_c_2',
+        'smoking_endage_adu_c_22',
+        # 'smoking_endage_adu_q_1', 'smoking_endage_adu_q_12'
+    ],
+    axis=1,
+    inplace=True)
 
 # ------ RESPIRATORY DISEASE
 df['copd_diagnosis'] = df['copd_presence_adu_q_2'].fillna(
@@ -155,9 +165,11 @@ goldstg = ("GOLD-1", "GOLD-2", "GOLD-3", "GOLD-4")
 df["GOLD_stage"] = np.select(criteria, goldstg)
 
 # ------ REMOVE segmentations with errors
+print(f"Number of rows before error removal: {len(df)}")
 df = df[df.bp_seg_error == False]
 df = df[(df.bp_leak_score != 0) | (df.bp_segmental_score != 0) |
         (df.bp_subsegmental_score != 0)]
+print(f"Number of rows after error removal: {len(df)}")
 
 # ------ SAVE DF
 df.to_csv(str(outpath / "final_bp_db.csv"))
