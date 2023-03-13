@@ -10,17 +10,21 @@ outpath = Path("./data/processed/")
 
 # ------ PARTICIPANT CHARACTERISTICS
 # Fill in missing gender values, drop the other columns
-df['gender'].fillna(df['gender_first'], inplace=True)
+df['gender'].fillna(df['gender_first'].fillna(df['gender_first2']),
+                    inplace=True)
 df['age_at_scan'].replace('#NUM!', np.nan, inplace=True)
+df['age_at_scan'].fillna(df['age'], inplace=True)
 df['age_at_scan'] = df['age_at_scan'].astype(float)
-df['weight_at_scan'].fillna(df['bodyweight_kg_all_m_1_max2'], inplace=True)
+df['weight_at_scan'].fillna(df['bodyweight_kg_all_m_1_max2'].fillna(
+    df['bodyweight_kg_all_m_1_max']),
+                            inplace=True)
 df['length_at_scan'].fillna(df['bodylength_cm_all_m_1_max2'], inplace=True)
 df['length_at_scan'].fillna(df['bodylength_cm_all_m_1_max'], inplace=True)
 
 df.drop([
     'gender_first', 'gender_first2', 'bodyweight_kg_all_m_1_max2',
     'bodyweight_kg_all_m_1_max', 'bodylength_cm_all_m_1_max2',
-    'bodylength_cm_all_m_1_max'
+    'bodylength_cm_all_m_1_max', 'age'
 ],
         axis=1,
         inplace=True)
@@ -76,37 +80,37 @@ df['smoking_endage'] = df['smoking_endage_adu_c_22'].fillna(
                 df['smoking_endage_adu_q_12'].fillna(
                     df['smoking_endage_adu_qc_1']))))))
 
+# Fill never smoker = False if any of the others is True
+df.loc[df.never_smoker.isna() & (~df.current_smoker.isna() & df.current_smoker)
+       | (df.ever_smoker.notna() & df.ever_smoker) |
+       (df.ex_smoker.notna() & df.ex_smoker), ['never_smoker']] = False
+
+# Fill never smoker = True if ALL the others are False
+try:
+    df.loc[(df.never_smoker.isna() & df.current_smoker.notna()
+            & df.ever_smoker.notna() & df.ex_smoker.notna()) &
+           (~df.current_smoker & ~df.ex_smoker & ~df.ever_smoker),
+           ['never_smoker']] = True
+except TypeError:
+    print("All values False for smoking status, filling Never Smoker as True")
+    df.loc[(df.never_smoker.isna() & df.current_smoker.notna()
+            & df.ever_smoker.notna() & df.ex_smoker.notna()),
+           ['never_smoker']] = True
+
 df.drop([
-    'ever_smoker_adu_c_2',
-    'ever_smoker_adu_c_22',
-    'ever_smoker_adu_c_22_2',
-    'ever_smoker_adu_c_22_3',
-    'ever_smoker_adu_c_22_4',
-    'never_smoker_adu_c_1',
-    'never_smoker_adu_c_12',
-    'never_smoker_adu_c_12_2',
-    'current_smoker_adu_c_2',
-    'current_smoker_adu_c_22',
-    'current_smoker_adu_c_22_2',
-    'current_smoker_adu_c_22_3',
-    'current_smoker_adu_c_22_4',
-    'ex_smoker_adu_c_2',
-    'ex_smoker_adu_c_22',
-    'ex_smoker_adu_c_22_2',
-    'ex_smoker_adu_c_22_3',
-    'ex_smoker_adu_c_22_4',
-    'packyears_cumulative_adu_c_2',
-    'packyears_cumulative_adu_c_22',
-    'packyears_cumulative_adu_c_22_2',
-    'packyears_cumulative_adu_c_22_3',
-    'packyears_cumulative_adu_c_22_4',
-    'smoking_endage_adu_c_2',
-    'smoking_endage_adu_c_22',
-    'smoking_endage_adu_c_22_2',
-    'smoking_endage_adu_c_22_3',
-    'smoking_endage_adu_c_22_4',
-    'smoking_endage_adu_q_12',
-    'smoking_endage_adu_qc_1'
+    'ever_smoker_adu_c_2', 'ever_smoker_adu_c_22', 'ever_smoker_adu_c_22_2',
+    'ever_smoker_adu_c_22_3', 'ever_smoker_adu_c_22_4', 'never_smoker_adu_c_1',
+    'never_smoker_adu_c_12', 'never_smoker_adu_c_12_2',
+    'current_smoker_adu_c_2', 'current_smoker_adu_c_22',
+    'current_smoker_adu_c_22_2', 'current_smoker_adu_c_22_3',
+    'current_smoker_adu_c_22_4', 'ex_smoker_adu_c_2', 'ex_smoker_adu_c_22',
+    'ex_smoker_adu_c_22_2', 'ex_smoker_adu_c_22_3', 'ex_smoker_adu_c_22_4',
+    'packyears_cumulative_adu_c_2', 'packyears_cumulative_adu_c_22',
+    'packyears_cumulative_adu_c_22_2', 'packyears_cumulative_adu_c_22_3',
+    'packyears_cumulative_adu_c_22_4', 'smoking_endage_adu_c_2',
+    'smoking_endage_adu_c_22', 'smoking_endage_adu_c_22_2',
+    'smoking_endage_adu_c_22_3', 'smoking_endage_adu_c_22_4',
+    'smoking_endage_adu_q_12', 'smoking_endage_adu_qc_1'
 ],
         axis=1,
         inplace=True)
