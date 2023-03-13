@@ -6,7 +6,7 @@ SHELL := bash
 
 VPATH=./data/processed/
 CONDA_ACTIVATE=source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
-FIGS=bp_pi10 bp_tcount bp_airvol bp_tlv bp_wap_3 bp_la_3 bp_wt_3
+FIGS=bp_pi10 bp_tcount bp_airvol bp_tlv bp_wap_avg bp_la_avg bp_wt_avg
 
 all: hist
 
