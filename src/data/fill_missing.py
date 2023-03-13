@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 df = pd.read_csv(sys.stdin, index_col=0)
-outpath = Path("./data/processed/")
+outpath = Path("./data/interim/")
 
 # ------ PARTICIPANT CHARACTERISTICS
 # Fill in missing gender values, drop the other columns
@@ -257,5 +257,9 @@ criteria = [
 goldstg = ("GOLD-1", "GOLD-2", "GOLD-3", "GOLD-4")
 df["GOLD_stage"] = np.select(criteria, goldstg)
 
+df.loc[df.bp_leak_score == -1, 'bp_leak_score'] = np.nan
+df.loc[df.bp_segmental_score == -1, 'bp_segmental_score'] = np.nan
+df.loc[df.bp_subsegmental_score == -1, 'bp_subsegmental_score'] = np.nan
+
 # ------ SAVE DF
-df.to_csv(str(outpath / "final_bp_db.csv"))
+df.to_csv(str(outpath / "bp_db_all.csv"))

@@ -19,6 +19,7 @@ CSV_FILES=$(DINT)2b_q_1.csv $(DINT)2a_q_2.csv $(DINT)2a_v_1.csv $(DINT)1c_q_1.cs
 SPLT_CSV=$(DINT)formatted_bp_data.csv
 MRG_CSV=$(DINT)data_merged.csv
 BP_FILT_CSV=$(DINT)bp_db_filtered.csv
+BP_ALL_CSV=$(DINT)bp_db_all.csv
 
 # Processed Data
 BP_FINAL=$(DPRC)final_bp_db.csv
@@ -33,6 +34,7 @@ all: $(BP_FINAL)
 
 $(BP_FINAL): $(BP_FILT_CSV)
 	< $< ./src/data/fill_missing.py
+	< $(BP_ALL_CSV) ./src/data/filter_dataset.py
 
 $(BP_FILT_CSV): $(MRG_CSV)
 	< $< csvcut -c $(DB_COLS) > $@
