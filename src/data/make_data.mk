@@ -10,7 +10,7 @@ DPRC=./data/processed/
 
 # RAW Data
 SPSS_FILES=1a_q_1.sav 1b_q_1.sav 1c_q_1.sav 1a_v_1.sav 2a_q_2.sav 2b_q_1.sav 2a_v_1.sav
-SCN_CSV=participant_age-at-scan.csv
+IMA_CSV=imalife_participant_data.csv
 SEG_CSV=final_bp_list.csv
 VAR_FILTER=$(VPATH)variable_filter_list.txt
 
@@ -18,7 +18,6 @@ VAR_FILTER=$(VPATH)variable_filter_list.txt
 CSV_FILES=$(DINT)2b_q_1.csv $(DINT)2a_q_2.csv $(DINT)2a_v_1.csv $(DINT)1c_q_1.csv $(DINT)1b_q_1.csv $(DINT)1a_q_1.csv $(DINT)1a_v_1.csv
 SPLT_CSV=$(DINT)formatted_bp_data.csv
 MRG_CSV=$(DINT)data_merged.csv
-BP_CSV=$(DINT)bronchial_parameter_db_full.csv
 BP_FILT_CSV=$(DINT)bp_db_filtered.csv
 
 # Processed Data
@@ -35,16 +34,11 @@ all: $(BP_FINAL)
 $(BP_FINAL): $(BP_FILT_CSV)
 	< $< ./src/data/fill_missing.py
 
-$(BP_FILT_CSV): $(BP_CSV)
-	echo $(DB_COLS)
+$(BP_FILT_CSV): $(MRG_CSV)
 	< $< csvcut -c $(DB_COLS) > $@
 
-# Remove any columns that contain only 1 unique value
-$(BP_CSV): $(MRG_CSV)
-	< $< csvcut -C $$(csvstat $< --unique | grep ': 1$$' | cut -d. -f 1 | tr -d ' ' | paste -sd,) > $@
-
 # Merge all CSV files into one using the patientID as an index
-$(MRG_CSV): $(SPLT_CSV) $(CSV_FILES) $(SCN_CSV)
+$(MRG_CSV): $(SPLT_CSV) $(CSV_FILES) $(IMA_CSV)
 	csvjoin --left -c patientID $^ > $@
 
 # Expand the semicolon delim'd bps and change participant_id to patientID
