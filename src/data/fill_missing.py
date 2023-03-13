@@ -16,15 +16,15 @@ df['age_at_scan'].replace('#NUM!', np.nan, inplace=True)
 df['age_at_scan'].fillna(df['age'], inplace=True)
 df['age_at_scan'] = df['age_at_scan'].astype(float)
 df['weight_at_scan'].fillna(df['bodyweight_kg_all_m_1_max2'].fillna(
-    df['bodyweight_kg_all_m_1_max']),
+    df['bodyweight_kg_all_m_1_max'].fillna(df['bodyweight_current_adu_q_1'])),
                             inplace=True)
 df['length_at_scan'].fillna(df['bodylength_cm_all_m_1_max2'], inplace=True)
 df['length_at_scan'].fillna(df['bodylength_cm_all_m_1_max'], inplace=True)
 
 df.drop([
     'gender_first', 'gender_first2', 'bodyweight_kg_all_m_1_max2',
-    'bodyweight_kg_all_m_1_max', 'bodylength_cm_all_m_1_max2',
-    'bodylength_cm_all_m_1_max', 'age'
+    'bodyweight_kg_all_m_1_max', 'bodyweight_current_adu_q_1',
+    'bodylength_cm_all_m_1_max2', 'bodylength_cm_all_m_1_max', 'age'
 ],
         axis=1,
         inplace=True)
@@ -73,12 +73,55 @@ df['pack_years'] = df['packyears_cumulative_adu_c_22'].fillna(
             df['packyears_cumulative_adu_c_22_3'].fillna(
                 df['packyears_cumulative_adu_c_22_4']))))
 
-df['smoking_endage'] = df['smoking_endage_adu_c_22'].fillna(
+df['smoking_end-age'] = df['smoking_endage_adu_c_22'].fillna(
     df['smoking_endage_adu_c_2'].fillna(df['smoking_endage_adu_c_22_2'].fillna(
         df['smoking_endage_adu_c_22_3'].fillna(
-            df['smoking_endage_adu_c_22_4'].fillna(
-                df['smoking_endage_adu_q_12'].fillna(
-                    df['smoking_endage_adu_qc_1']))))))
+            df['smoking_endage_adu_c_22_4']))))
+
+df['smoking_start-age'] = df['smoking_startage_adu_c_22'].fillna(
+    df['smoking_startage_adu_c_2'].fillna(
+        df['smoking_startage_adu_c_22_2'].fillna(
+            df['smoking_startage_adu_c_22_3'].fillna(
+                df['smoking_startage_adu_c_22_4']))))
+
+df['smoking_duration'] = df['smoking_duration_adu_c_22'].fillna(
+    df['smoking_duration_adu_c_2'].fillna(
+        df['smoking_duration_adu_c_22_2'].fillna(
+            df['smoking_duration_adu_c_22_3'].fillna(
+                df['smoking_duration_adu_c_22_4']))))
+
+# Calculate missing pack years
+duration = df['smoking_end-age'].fillna(df['age_at_scan']) - df['smoking_start-age']
+mask = df['smoking_start-age'].notna() & df['smoking_duration'].isna()
+df.loc[mask, 'smoking_duration'] = duration[mask]
+
+df['max_cig_freq'] = df[[
+    'cigarettes_frequency_adu_q_1_a', 'cigarettes_frequency_adu_q_1',
+    'cigarettes_frequency_adu_c_2'
+]].max(axis=1)
+df['max_ciga_freq'] = df[[
+    'cigarillos_frequency_adu_c_2', 'cigarillos_frequency_adu_q_1',
+    'cigarillos_frequency_adu_q_1_a'
+]].max(axis=1)
+df['max_cigar_freq'] = df[[
+    'cigars_frequency_adu_c_2', 'cigars_frequency_adu_q_1',
+    'cigars_frequency_adu_q_1_a'
+]].max(axis=1)
+df['max_other_freq'] = df[[
+    'pipetobacco_frequency_adu_c_2', 'pipetobacco_frequency_adu_q_1',
+    'pipetobacco_frequency_adu_q_1_a'
+]].max(axis=1)
+
+df['total_freq_calc'] = df['max_cig_freq'] + df['max_ciga_freq'] + df[
+    'max_cigar_freq'] + df['max_other_freq']
+
+df['total_frequency'] = df['total_frequency_adu_c_12'].fillna(
+    df['total_frequency_adu_c_1'].fillna(df['total_freq_calc']))
+
+df.loc[df.total_frequency == 0, 'total_frequency'] = np.nan
+
+df['pack_years_calc'] = df['smoking_duration'] * df['total_frequency'] / 20
+df['pack_years'].fillna(df['pack_years_calc'], inplace=True)
 
 # Fill never smoker = False if any of the others is True
 df.loc[df.never_smoker.isna() & (~df.current_smoker.isna() & df.current_smoker)
@@ -110,7 +153,20 @@ df.drop([
     'packyears_cumulative_adu_c_22_4', 'smoking_endage_adu_c_2',
     'smoking_endage_adu_c_22', 'smoking_endage_adu_c_22_2',
     'smoking_endage_adu_c_22_3', 'smoking_endage_adu_c_22_4',
-    'smoking_endage_adu_q_12', 'smoking_endage_adu_qc_1'
+    'smoking_duration_adu_c_2', 'smoking_duration_adu_c_22',
+    'smoking_duration_adu_c_22_2', 'smoking_duration_adu_c_22_3',
+    'smoking_duration_adu_c_22_4', 'cigarettes_frequency_adu_q_1',
+    'cigarettes_frequency_adu_q_1_a', 'cigarettes_frequency_adu_c_2',
+    'cigars_frequency_adu_q_1_a', 'cigars_frequency_adu_q_1',
+    'cigars_frequency_adu_c_2', 'cigarillos_frequency_adu_q_1_a',
+    'cigarillos_frequency_adu_q_1', 'cigarillos_frequency_adu_c_2',
+    'pipetobacco_frequency_adu_q_1_a', 'pipetobacco_frequency_adu_q_1',
+    'pipetobacco_frequency_adu_c_2', 'total_frequency_adu_c_1',
+    'total_frequency_adu_c_12', 'smoking_startage_adu_c_2',
+    'smoking_startage_adu_c_22', 'smoking_startage_adu_c_22_2',
+    'smoking_startage_adu_c_22_3', 'smoking_startage_adu_c_22_4',
+    'max_other_freq', 'max_cigar_freq', 'max_ciga_freq', 'max_cig_freq',
+    'total_freq_calc', 'pack_years_calc'
 ],
         axis=1,
         inplace=True)
@@ -200,11 +256,6 @@ criteria = [
 
 goldstg = ("GOLD-1", "GOLD-2", "GOLD-3", "GOLD-4")
 df["GOLD_stage"] = np.select(criteria, goldstg)
-
-# ------ REMOVE segmentations with errors
-df = df[df.bp_seg_error == False]
-df = df[(df.bp_leak_score != 0) | (df.bp_segmental_score != 0) |
-        (df.bp_subsegmental_score != 0)]
 
 # ------ SAVE DF
 df.to_csv(str(outpath / "final_bp_db.csv"))
