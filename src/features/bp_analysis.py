@@ -5,18 +5,18 @@ import argparse
 import random
 
 import pandas as pd
+import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
 from tqdm import tqdm
 import statsmodels.api as sm
-from scipy.stats import f_oneway
+from scipy.stats import f_oneway, ttest_ind
 
 
 def set_figure_style():
     fnt_s = 14
     fnt_m = 20
-    fnt_l = 26
     plt.rc('font', size=fnt_s)
     plt.rc('axes', titlesize=fnt_m)
     plt.rc('axes', labelweight="bold")
@@ -25,9 +25,31 @@ def set_figure_style():
     # plt.rc('figure', titlesize=fnt_l)
 
 
-def main(args):
+def analyse(df: pd.DataFrame, param_list: list, outpath: Path):
 
-    outpath = Path(args.out_path)
+    def _desc(df_desc: pd.DataFrame, param: str) -> dict:
+        # Calc Mean and SD
+        mean = df_desc[param].mean()
+        sd = df_desc[param].std()
+        # Calc 95% CI
+        n = len(df_desc[param])
+        se = sd / np.sqrt(n)
+        ci = 1.96 * se
+        ci_low = mean - ci
+        ci_high = mean + ci
+        # Calc 95% range
+        range_low = df_desc[param].quantile(0.025)
+        range_high = df_desc[param].quantile(0.975)
+
+        result = {
+            "Mean": round(mean, 3),
+            "SD": round(sd, 3),
+            "95% CI": f"[{round(ci_low, 3)}, {round(ci_high, 3)}]",
+            "95% Range": f"[{round(range_low, 3)}-{round(range_high, 3)}]"
+        }
+
+        return result
+
     out_scatter = outpath / "scatterplots"
     out_dist = outpath / "distplots"
     out_box = outpath / "boxplots"
@@ -41,53 +63,13 @@ def main(args):
     (out_mlr / "csv").mkdir(exist_ok=True, parents=True)
     (out_lr / "text").mkdir(exist_ok=True, parents=True)
     (out_lr / "csv").mkdir(exist_ok=True, parents=True)
+    df[["Gender", "Age", "Height", "Weight", "Total Lung Volume"
+        ]].describe().to_csv(f"{str(outpath)}/demographics.csv")
 
-    df = pd.read_csv(args.in_file)
-    df = df[(df.weight_at_scan > 20) & (df.bp_tcount > 100) &
-            (df.age_at_scan > 0) & (df.age_at_scan < 100) &
-            (df.length_at_scan > 100) & (df.bp_seg_error == False)]
-    df["wap_avg"] = df[["bp_wap_3", "bp_wap_4", "bp_wap_5"]].mean(axis=1)
-    df["wt_avg"] = df[["bp_wt_3", "bp_wt_4", "bp_wt_5"]].mean(axis=1)
-    df["la_avg"] = df[["bp_la_3", "bp_la_4", "bp_la_5"]].mean(axis=1)
-    df = df.sample(n=282, random_state=args.seed)
-    with open(f"{str(outpath)}/seed_n_gender.txt", "w") as f:
-        f.write(f"Sample Seed: {args.seed}\n{df['gender'].value_counts()}")
-    df[["gender", "age_at_scan", "length_at_scan", "weight_at_scan",
-        "bp_tlv"]].describe().to_csv(f"{str(outpath)}/demographics.csv")
-
-    bins = [0, 55, 65, 75, 100]
-    labels = ["45-55", "56-65", "66-75", "76-100"]
-    df["age_category"] = pd.cut(df["age_at_scan"], bins=bins, labels=labels)
-    one_hot = pd.get_dummies(df.gender)
-    df = df.join(one_hot)
-
-    param_label = {
-        "gender": "Gender",
-        "age_at_scan": "Age",
-        "length_at_scan": "Height",
-        "weight_at_scan": "Weight",
-        "age_category": "Age Category",
-        "bp_pi10": "Pi10",
-        "wt_avg": "Wall Thickness",
-        "la_avg": "Luminal Area",
-        "wap_avg": "Wall Area Percent",
-        "bp_tcount": "Total Airway Count",
-        "bp_airvol": "Total Airway Volume",
-        "bp_tlv": "Total Lung Volume"
-    }
-
-    analysis_params = [
-        "Pi10", "Wall Thickness", "Luminal Area", "Wall Area Percent",
-        "Total Airway Count", "Total Airway Volume"
-    ]
-
-    df.rename(columns=param_label, inplace=True)
-
-    df["Gender"] = df.apply(lambda row: row["Gender"].capitalize(), axis=1)
     df_male = df[df.Gender == 'Male']
+    df_male = df_male.sort_values('Age Category')
     df_female = df[df.Gender == 'Female']
-
-    set_figure_style()
+    df_female = df_female.sort_values('Age Category')
 
     sns.regplot(x=df["Height"], y=df["Total Lung Volume"])
     plt.savefig(f"{str(out_scatter)}/length_at_scan_tlv.jpg")
@@ -97,9 +79,15 @@ def main(args):
     plt.savefig(f"{str(out_scatter)}/weight_at_scan_age.jpg")
     plt.close()
 
-    list_anovas = {}
+    dict_anovas = {}
+    dict_ttest = {}
+    dict_desc = {"Male": {}, "Female": {}}
 
-    for param in tqdm(analysis_params):
+    for param in tqdm(param_list):
+        # Descriptive stats and ranges
+        dict_desc["Male"][param] = _desc(df_male, param)
+        dict_desc["Female"][param] = _desc(df_female, param)
+
         # Distribution plots for gender
         sns.displot(df, x=param, hue="Gender", kind="kde")
         plt.tight_layout()
@@ -142,23 +130,91 @@ def main(args):
             plt.savefig(f"{str(out_scatter)}/{x}_{param}.jpg")
             plt.close()
 
+        # T-Test by gender
+        t_stat, p_val = ttest_ind(df_male[param], df_female[param])
+        dict_ttest[f"{param}"] = p_val
+
         # ANOVA for age
         male_anova = f_oneway(
             *[s for idx, s in df_male.groupby("Age Category")[param]])
         female_anova = f_oneway(
             *[s for idx, s in df_female.groupby("Age Category")[param]])
 
-        list_anovas[f"male_{param}"] = male_anova
-        list_anovas[f"female_{param}"] = female_anova
+        dict_anovas[f"male_{param}"] = male_anova
+        dict_anovas[f"female_{param}"] = female_anova
 
-    df_anova = pd.DataFrame.from_dict(list_anovas)
-    df_anova.to_csv(f"{str(outpath)}/anova.csv")
+    pd.DataFrame.from_dict(dict_anovas).to_csv(f"{str(outpath)}/anova.csv")
+    pd.DataFrame.from_dict({
+        't-test': dict_ttest
+    }, orient='columns').to_csv(f"{str(outpath)}/ttest.csv")
+    desc_df = pd.concat({k: pd.DataFrame(v).T
+                         for k, v in dict_desc.items()},
+                        axis=0)
+    desc_df.to_csv(f"{str(outpath)}/descriptive_stats.csv")
+
+
+def main(args):
+
+    set_figure_style()
+    outpath = Path(args.out_path)
+
+    df = pd.read_csv(args.in_file)
+    df = df[(df.weight_at_scan > 20) & (df.bp_tcount > 100) &
+            (df.age_at_scan > 0) & (df.age_at_scan < 100) &
+            (df.length_at_scan > 100) & (~df.bp_seg_error) &
+            (df.never_smoker.notna()) & (df.GOLD_stage == '0') &
+            (df.copd_diagnosis != True) & (df.asthma_diagnosis != True)]
+    df["wap_avg"] = df[["bp_wap_3", "bp_wap_4", "bp_wap_5"]].mean(axis=1)
+    df["wt_avg"] = df[["bp_wt_3", "bp_wt_4", "bp_wt_5"]].mean(axis=1)
+    df["la_avg"] = df[["bp_la_3", "bp_la_4", "bp_la_5"]].mean(axis=1)
+    # df = df.sample(n=282, random_state=args.seed)
+    # with open(f"{str(outpath)}/seed_n_gender.txt", "w") as f:
+    #     f.write(f"Sample Seed: {args.seed}\n{df['gender'].value_counts()}")
+
+    one_hot = pd.get_dummies(df.gender)
+    df = df.join(one_hot)
+
+    param_label = {
+        "gender": "Gender",
+        "age_at_scan": "Age",
+        "length_at_scan": "Height",
+        "weight_at_scan": "Weight",
+        "age_10yr": "Age Category",
+        "bp_pi10": "Pi10",
+        "wt_avg": "Wall Thickness",
+        "la_avg": "Luminal Area",
+        "wap_avg": "Wall Area Percent",
+        "bp_tcount": "Total Airway Count",
+        "bp_airvol": "Total Airway Volume",
+        "bp_tlv": "Total Lung Volume"
+    }
+    df.rename(columns=param_label, inplace=True)
+    df["Gender"] = df.apply(lambda row: row["Gender"].capitalize(), axis=1)
+
+    analysis_params = [
+        "Pi10", "Wall Thickness", "Luminal Area", "Wall Area Percent",
+        "Total Airway Count", "Total Airway Volume"
+    ]
+
+    df_groups = {
+        "all": df,
+        "never-smokers": df[df.never_smoker],
+        "ex-smokers": df[df.ex_smoker],
+        "current-smoker": df[df.current_smoker]
+    }
+    for group, data in df_groups.items():
+        group_outpath = outpath / group
+        analyse(data, analysis_params, group_outpath)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("in_file", type=str, help="Input summary file.")
     parser.add_argument("out_path", type=str, help="Output directory path.")
-    parser.add_argument("-s", "--seed", type=int, default=random.randint(0, 10000), help="Sample selection seed")
+    parser.add_argument("-s",
+                        "--seed",
+                        type=int,
+                        default=random.randint(0, 10000),
+                        help="Sample selection seed")
     args = parser.parse_args()
     main(args)
