@@ -21,34 +21,51 @@ def set_figure_style():
     plt.rc('axes', titlesize=fnt_m)
     plt.rc('axes', labelweight="bold")
     plt.rc('axes', labelsize=fnt_s)
-    # plt.rc('legend', titleweight="bold")
-    # plt.rc('figure', titlesize=fnt_l)
+
+
+def calculate_stats(df_desc: pd.DataFrame, param: str) -> dict:
+    """
+    This function takes a DataFrame `df_desc` and a column name `param`,
+    then calculates and returns the following
+    descriptive statistics as a dictionary:
+    1. Mean
+    2. Standard Deviation (SD)
+    3. 95% Confidence Interval (CI)
+    4. 95% Range
+
+    Args:
+        df_desc (pd.DataFrame): The input DataFrame containing the data.
+        param (str):            The name of the column for which to calculate
+                                the descriptive statistics.
+
+    Returns:
+        dict: A dictionary containing the calculated descriptive statistics.
+    """
+
+    # Calc Mean and SD
+    mean = df_desc[param].mean()
+    sd = df_desc[param].std()
+    # Calc 95% CI
+    n = len(df_desc[param])
+    se = sd / np.sqrt(n)
+    ci = 1.96 * se
+    ci_low = mean - ci
+    ci_high = mean + ci
+    # Calc 95% range
+    range_low = df_desc[param].quantile(0.025)
+    range_high = df_desc[param].quantile(0.975)
+
+    result = {
+        "Mean": round(mean, 3),
+        "SD": round(sd, 3),
+        "95% CI": f"[{round(ci_low, 3)}, {round(ci_high, 3)}]",
+        "95% Range": f"[{round(range_low, 3)}-{round(range_high, 3)}]"
+    }
+
+    return result
 
 
 def analyse(df: pd.DataFrame, param_list: list, outpath: Path):
-
-    def _desc(df_desc: pd.DataFrame, param: str) -> dict:
-        # Calc Mean and SD
-        mean = df_desc[param].mean()
-        sd = df_desc[param].std()
-        # Calc 95% CI
-        n = len(df_desc[param])
-        se = sd / np.sqrt(n)
-        ci = 1.96 * se
-        ci_low = mean - ci
-        ci_high = mean + ci
-        # Calc 95% range
-        range_low = df_desc[param].quantile(0.025)
-        range_high = df_desc[param].quantile(0.975)
-
-        result = {
-            "Mean": round(mean, 3),
-            "SD": round(sd, 3),
-            "95% CI": f"[{round(ci_low, 3)}, {round(ci_high, 3)}]",
-            "95% Range": f"[{round(range_low, 3)}-{round(range_high, 3)}]"
-        }
-
-        return result
 
     out_scatter = outpath / "scatterplots"
     out_dist = outpath / "distplots"
@@ -85,8 +102,8 @@ def analyse(df: pd.DataFrame, param_list: list, outpath: Path):
 
     for param in tqdm(param_list):
         # Descriptive stats and ranges
-        dict_desc["Male"][param] = _desc(df_male, param)
-        dict_desc["Female"][param] = _desc(df_female, param)
+        dict_desc["Male"][param] = calculate_stats(df_male, param)
+        dict_desc["Female"][param] = calculate_stats(df_female, param)
 
         # Distribution plots for gender
         sns.displot(df, x=param, hue="Gender", kind="kde")
@@ -167,9 +184,6 @@ def main(args):
     df["wap_avg"] = df[["bp_wap_3", "bp_wap_4", "bp_wap_5"]].mean(axis=1)
     df["wt_avg"] = df[["bp_wt_3", "bp_wt_4", "bp_wt_5"]].mean(axis=1)
     df["la_avg"] = df[["bp_la_3", "bp_la_4", "bp_la_5"]].mean(axis=1)
-    # df = df.sample(n=282, random_state=args.seed)
-    # with open(f"{str(outpath)}/seed_n_gender.txt", "w") as f:
-    #     f.write(f"Sample Seed: {args.seed}\n{df['gender'].value_counts()}")
 
     one_hot = pd.get_dummies(df.gender)
     df = df.join(one_hot)
