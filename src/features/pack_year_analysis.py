@@ -35,6 +35,19 @@ for age in age_cutoff:
         range_pack_years_current = current_smokers.groupby(
             'gender')['pack_years'].agg(['count', 'mean', 'std', 'min', 'max'])
         range_pack_years_current = range_pack_years_current.round(2)
+        current_pack_grt_py = current_smokers[current_smokers['pack_years'] >= py].groupby('gender').size()
+        current_pack_grt_py_perc = current_smokers[current_smokers['pack_years'] >= py].groupby('gender').size() / current_smokers.groupby('gender').size() * 100
+        current_smokers_py_or_more_report = pd.concat([
+            current_pack_grt_py, current_pack_grt_py_perc
+        ],
+                                                   axis=1,
+                                                   keys=[
+                                                       'count', 'percentage'
+                                                   ])
+        # Round the percentage column to two decimal places
+        current_smokers_py_or_more_report[
+            'percentage'] = current_smokers_py_or_more_report['percentage'].round(
+                2)
 
         # Categorize past smokers based on how long ago they stopped smoking
         ex_smokers['years_since_quit'] = ex_smokers[
@@ -101,6 +114,8 @@ for age in age_cutoff:
             f.write(range_pack_years_current.to_string())
             f.write(f'\nt-value: {round(ttest_result_current.statistic, 4)}\n')
             f.write(f'p-value: {round(ttest_result_current.pvalue, 4)}\n')
+            f.write(f'\n\nCurrent Smokers with {py} Pack Years or More:\n')
+            f.write(current_smokers_py_or_more_report.to_string())
             f.write('\n\nPack Years for Ex Smokers:\n')
             f.write(range_pack_years_ex.to_string())
             f.write(f'\nt-value: {round(ttest_result_ex.statistic, 4)}\n')
