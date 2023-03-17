@@ -80,6 +80,7 @@ def analyse(df: pd.DataFrame, param_list: list, outpath: Path):
     (out_mlr / "csv").mkdir(exist_ok=True, parents=True)
     (out_lr / "text").mkdir(exist_ok=True, parents=True)
     (out_lr / "csv").mkdir(exist_ok=True, parents=True)
+
     df[["Gender", "Age", "Height", "Weight", "Total Lung Volume"
         ]].describe().to_csv(f"{str(outpath)}/demographics.csv")
 
@@ -149,7 +150,7 @@ def analyse(df: pd.DataFrame, param_list: list, outpath: Path):
 
         # T-Test by gender
         t_stat, p_val = ttest_ind(df_male[param], df_female[param])
-        dict_ttest[f"{param}"] = p_val
+        dict_ttest[f"{param}"] = round(p_val, 4)
 
         # ANOVA for age
         male_anova = f_oneway(
@@ -167,6 +168,7 @@ def analyse(df: pd.DataFrame, param_list: list, outpath: Path):
     desc_df = pd.concat({k: pd.DataFrame(v).T
                          for k, v in dict_desc.items()},
                         axis=0)
+    desc_df = desc_df.round(2)
     desc_df.to_csv(f"{str(outpath)}/descriptive_stats.csv")
 
 

@@ -14,7 +14,8 @@ output_dir.mkdir(parents=True, exist_ok=True)
 
 df = pd.read_csv(sys.stdin)
 df_healthy = df[df.GOLD_stage == "0"]
-df_unhealthy = df[df.GOLD_stage != "0"]
+df_unhealthy = df[(df.GOLD_stage != "0") & (df.copd_diagnosis != 1) &
+                  (df.asthma_diagnosis != 1)]
 df_male_h = df_healthy[df_healthy.gender == "MALE"]
 df_female_h = df_healthy[df_healthy.gender == "FEMALE"]
 df_male_u = df_unhealthy[df_unhealthy.gender == "MALE"]
@@ -106,8 +107,7 @@ def run_test(data, male: bool = True, healthy: bool = True):
     axs[1, 1].axis('off')
 
     plt.subplots_adjust(hspace=0.4)
-    plt.savefig(str(output_dir / f'{var_name}_norm_test.png'),
-                dpi=300)
+    plt.savefig(str(output_dir / f'{var_name}_norm_test.png'), dpi=300)
     plt.close()
     logging.info("Done testing normality")
 

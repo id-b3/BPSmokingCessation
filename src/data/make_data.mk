@@ -15,7 +15,7 @@ SEG_CSV=final_bp_list.csv
 VAR_FILTER=$(VPATH)variable_filter_list.txt
 
 # Interim Data
-CSV_FILES=$(DINT)2b_q_1.csv $(DINT)2a_q_2.csv $(DINT)2a_v_1.csv $(DINT)1c_q_1.csv $(DINT)1b_q_1.csv $(DINT)1a_q_1.csv $(DINT)1a_v_1.csv
+CSV_FILES=$(patsubst %.sav,$(DINT)%.csv,$(SPSS_FILES))
 SPLT_CSV=$(DINT)formatted_bp_data.csv
 MRG_CSV=$(DINT)data_merged.csv
 BP_FILT_CSV=$(DINT)bp_db_filtered.csv

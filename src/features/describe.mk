@@ -4,14 +4,13 @@ SHELL := bash
 
 .PHONY: all clean
 
-VPATH=./data/processed/
+REPPATH=./reports/descriptive/
+BP_CSV=./data/processed/final_bp_db.csv
 
-COL_SUM=$(VPATH)bp_db_summary.csv
-BP_CSV=final_bp_db.csv
+DEMO_CSV=$(REPPATH)demographics.csv
 
-FILTER_COLS=age,gender,smoking
+all: $(DEMO_CSV)
 
-all: $(COL_SUM)
-
-$(COL_SUM): $(BP_CSV)
-	csvstat --csv $< > $@
+$(DEMO_CSV): $(BP_CSV)
+	mkdir -p $(REPPATH)
+	./src/features/get_demographics.py $< $@
