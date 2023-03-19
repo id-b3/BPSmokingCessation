@@ -32,3 +32,8 @@ vals = ",".join([str(num) for num in counts.values()])
 with open(sys.argv[2], "w") as f:
     f.write(f"{head}\n")
     f.write(vals)
+
+mermaid = f"flowchart TD\nA[fa:fa-users All Participants - {counts['Processed']}] -->|fa:fa-lungs Normal Spirometry\\nfa:fa-head-side-cough No Respiratory Disease\\nfa:fa-lungs-virus No Hx Lung Cancer\\nfa:fa-prescription-bottle-medical No Rx use for Resp Disease| B(fa:fa-heart-pulse Healthy General Population - {counts['Healthy']})\nB --> C[fa:fa-user Never-Smokers\\n{counts['Healthy Never-Smokers']}]\nB --> D[fa:fa-ban-smoking Ex-Smokers\\n{counts['Healthy Ex-Smokers']}]\nB --> E[fa:fa-smoking Current-Smokers\\n{counts['Healthy Current-Smokers']}]\nB -.-> F[No Smoking Hx\\n{counts['Healthy No-Status']}]"
+
+with open(sys.argv[2].replace(".csv", ".md"), "w") as f:
+    f.write(mermaid)

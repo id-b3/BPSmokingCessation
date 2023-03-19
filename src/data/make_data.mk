@@ -6,7 +6,6 @@ SHELL := bash
 
 VPATH=./data/raw/
 DINT=./data/interim/
-DPRC=./data/processed/
 
 # RAW Data
 SPSS_FILES=1a_q_1.sav 1b_q_1.sav 1c_q_1.sav 1a_v_1.sav 2a_q_2.sav 2b_q_1.sav 2a_v_1.sav
@@ -20,9 +19,6 @@ SPLT_CSV=$(DINT)formatted_bp_data.csv
 MRG_CSV=$(DINT)data_merged.csv
 BP_FILT_CSV=$(DINT)bp_db_filtered.csv
 BP_ALL_CSV=$(DINT)bp_db_all.csv
-
-# Processed Data
-BP_FINAL=$(DPRC)final_bp_db.csv
 
 # Lists of Variables
 BP_COLS=bp_wap,bp_la,bp_wt,bp_ir,bp_or

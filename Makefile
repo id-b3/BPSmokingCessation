@@ -14,6 +14,16 @@ else
 HAS_CONDA=True
 endif
 
+# Paths
+DPRC:=./data/processed/
+# Processed Data
+BP_FINAL:=$(DPRC)final_bp_db.csv
+
+# Params to analyse
+PARAMS:=bp_pi10,bp_tcount,bp_wt_avg,bp_la_avg,bp_wap_avg,bp_airvol
+
+export DPRC BP_FINAL PARAMS
+
 #################################################################################
 # COMMANDS                                                                      #
 #################################################################################
@@ -33,6 +43,9 @@ data_describe:
 ## Create Figures
 data_visualise:
 	$(MAKE) -f ./src/visualization/make_plots.mk -C $(PROJECT_DIR)
+
+data_analyse:
+	$(MAKE) -f ./src/features/analyse_gender.mk -C $(PROJECT_DIR)
 
 ## Test the variables for normality
 test_norm:
