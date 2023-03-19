@@ -2,7 +2,6 @@
 
 import argparse
 import pandas as pd
-import os
 from scipy import stats
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
@@ -33,9 +32,6 @@ if args.healthy:
             (df.cancer_type != "BORST LONG")]
 # Parse parameters to test
 parameters = args.parameters.split(",")
-
-# Prepare output folder
-os.makedirs(args.output, exist_ok=True)
 
 
 def get_smoking_status(row):
@@ -100,5 +96,4 @@ for gender in ["MALE", "FEMALE"]:
 # Convert results to DataFrame and save as CSV
 results_df = pd.DataFrame(results)
 results_df = results_df.round(4)
-output_file = os.path.join(args.output, "gender_anova_tukey_results.csv")
-results_df.to_csv(output_file, index=False)
+results_df.to_csv(args.output, index=False)

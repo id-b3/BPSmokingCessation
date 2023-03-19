@@ -47,7 +47,7 @@ data_visualise:
 	$(MAKE) -f ./src/visualization/make_plots.mk -C $(PROJECT_DIR)
 
 data_analyse:
-	$(MAKE) -f ./src/features/analyse_gender.mk -C $(PROJECT_DIR)
+	$(MAKE) -f ./src/features/analyse_data.mk -C $(PROJECT_DIR)
 
 ## Test the variables for normality
 test_norm:
