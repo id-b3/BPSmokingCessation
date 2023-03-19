@@ -1,21 +1,13 @@
 #!/usr/bin/env python3
 
+import sys
 import pandas as pd
 
 total_processed = 12041
 
-df = pd.read_csv("data/processed/final_bp_db.csv")
-# df = df.astype({
-#     'copd_diagnosis': 'bool',
-#     'asthma_diagnosis': 'bool',
-#     'never_smoker': 'bool',
-#     'ex_smoker': 'bool',
-#     'current_smoker': 'bool',
-# },
-#                copy=False)
+df = pd.read_csv(sys.argv[1])
 
 df_spiro = df[df.GOLD_stage == '0']
-# breakpoint()
 df_resp = df_spiro[(df_spiro.copd_diagnosis == False)
                    & df_spiro.asthma_diagnosis == False
                    & (df_spiro.cancer_type != "LONGKANKER")
@@ -37,6 +29,6 @@ counts["Healthy No-Status"] = counts["Healthy"] - sum(
     list(counts.values())[5:8])
 head = ",".join(counts.keys())
 vals = ",".join([str(num) for num in counts.values()])
-with open("reports/inclusion_flowchart.csv", "w") as f:
+with open(sys.argv[2], "w") as f:
     f.write(f"{head}\n")
     f.write(vals)

@@ -30,6 +30,10 @@ data:
 data_describe:
 	$(MAKE) -f ./src/features/describe.mk -C $(PROJECT_DIR)
 
+## Create Figures
+data_visualise:
+	$(MAKE) -f ./src/visualization/make_plots.mk -C $(PROJECT_DIR)
+
 ## Test the variables for normality
 test_norm:
 	$(MAKE) -f ./src/features/test_norm.mk -C $(PROJECT_DIR)

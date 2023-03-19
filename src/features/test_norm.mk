@@ -13,5 +13,5 @@ all: hist
 hist: final_bp_db.csv
 	$(CONDA_ACTIVATE) stats
 	for col in $(FIGS) ; do \
-		csvcut -c "$$col,gender,GOLD_stage,copd_diagnosis,asthma_diagnosis" $< | python ./src/visualization/test_normality.py ; \
+		csvcut -c "$$col,gender,GOLD_stage,copd_diagnosis,asthma_diagnosis" $< | python ./src/features/test_normality.py ; \
 	done

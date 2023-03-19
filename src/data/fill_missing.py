@@ -98,7 +98,8 @@ df['smoking_duration'] = df['smoking_duration_adu_c_22'].fillna(
                 df['smoking_duration_adu_c_22_4']))))
 
 # Calculate missing pack years
-duration = df['smoking_end-age'].fillna(df['age_at_scan']) - df['smoking_start-age']
+duration = df['smoking_end-age'].fillna(
+    df['age_at_scan']) - df['smoking_start-age']
 mask = df['smoking_start-age'].notna() & df['smoking_duration'].isna()
 df.loc[mask, 'smoking_duration'] = duration[mask]
 
@@ -146,6 +147,22 @@ except TypeError:
     df.loc[(df.never_smoker.isna() & df.current_smoker.notna()
             & df.ever_smoker.notna() & df.ex_smoker.notna()),
            ['never_smoker']] = True
+
+
+# Create "smoking_status" variable for easier separation
+def get_smoking_status(row):
+    if row["current_smoker"] is True:
+        return "Current Smoker"
+    if row["ex_smoker"] is True:
+        return "Ex Smoker"
+    if row["never_smoker"] is True:
+        return "Never Smoker"
+    else:
+        return None
+
+
+df["smoking_status"] = df[["never_smoker", "current_smoker",
+                           "ex_smoker"]].apply(get_smoking_status, axis=1)
 
 df.drop([
     'ever_smoker_adu_c_2', 'ever_smoker_adu_c_22', 'ever_smoker_adu_c_22_2',
