@@ -10,6 +10,12 @@ import matplotlib.pyplot as plt
 
 def main(args):
     df = pd.read_csv(args.in_db)
+    if args.healthy:
+        df = df[(df.GOLD_stage == "0")]
+        df = df[(df.copd_diagnosis == False)
+                & (df.asthma_diagnosis == False)
+                & (df.cancer_type != "LONGKANKER") &
+                (df.cancer_type != "BORST LONG")]
     df.columns = df.columns.str.replace('_', ' ').str.title()
 
     bps = args.param_list.replace('_', ' ').title().split(',')
@@ -40,18 +46,21 @@ def main(args):
                              inner="quart",
                              linewidth=1.5)
         sns.despine(left=True)
-        fig.get_figure().savefig(f"{str(out_path / param)}.pdf", dpi=300)
+        fig.get_figure().savefig(f"{str(out_path / param)}.png", dpi=300)
         plt.close()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("in_db", type=str, help="Input database csv")
+    parser.add_argument("in_db", type=str, help="Input dfbase csv")
     parser.add_argument("out_dir",
                         type=str,
                         help="Output folder for violin plots.")
     parser.add_argument("param_list",
                         type=str,
                         help="Comma separated list of params to process.")
+    parser.add_argument("--healthy",
+                        action="store_true",
+                        help="Only analyse healthy")
     args = parser.parse_args()
     main(args)

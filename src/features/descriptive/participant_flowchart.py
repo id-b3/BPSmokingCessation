@@ -9,7 +9,7 @@ df = pd.read_csv(sys.argv[1])
 
 df_spiro = df[df.GOLD_stage == '0']
 df_resp = df_spiro[(df_spiro.copd_diagnosis == False)
-                   & df_spiro.asthma_diagnosis == False
+                   & (df_spiro.asthma_diagnosis == False)
                    & (df_spiro.cancer_type != "LONGKANKER")
                    & (df_spiro.cancer_type != "BORST LONG")]
 

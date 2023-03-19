@@ -11,6 +11,14 @@ def prettify(var_name):
 
 def main(args):
     data = pd.read_csv(args.in_file)
+
+    if args.healthy:
+        data = data[(data.GOLD_stage == "0")]
+        data = data[(data.copd_diagnosis == False)
+                    & (data.asthma_diagnosis == False)
+                    & (data.cancer_type != "LONGKANKER") &
+                    (data.cancer_type != "BORST LONG")]
+
     # Calculate descriptive statistics and t-test p-values
     result_dict = {'Variable': ["Participants"]}
 
@@ -52,10 +60,10 @@ def main(args):
                 result_dict['Variable'].append(prettify(var))
 
             result_dict[f'Male Mean±SD {group.title()}'].append(
-                f'{male_mean:.1f}±{male_std:.1f}')
+                f'{male_mean:.2f}±{male_std:.2f}')
             result_dict[f'Female Mean±SD {group.title()}'].append(
-                f'{female_mean:.1f}±{female_std:.1f}')
-            result_dict[f'p-val {group.title()}'].append(f'{p_value:.2f}')
+                f'{female_mean:.2f}±{female_std:.2f}')
+            result_dict[f'p-val {group.title()}'].append(f'{p_value:.4f}')
 
     # Create a DataFrame with the results
     result_df = pd.DataFrame(result_dict)
@@ -68,5 +76,6 @@ if __name__ == '__main__':
     parser.add_argument("out_file",
                         type=str,
                         help="Output report destination.")
+    parser.add_argument("--healthy", action="store_true", help="Healthy only")
     args = parser.parse_args()
     main(args)

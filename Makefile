@@ -18,6 +18,8 @@ endif
 DPRC:=./data/processed/
 # Processed Data
 BP_FINAL:=$(DPRC)final_bp_db.csv
+BP_HEALTHY:=$(DPRC)healthy_bp_db.csv
+BP_DISEASED:=$(DPRC)diseased_bp_db.csv
 
 # Params to analyse
 PARAMS:=bp_pi10,bp_tcount,bp_wt_avg,bp_la_avg,bp_wap_avg,bp_airvol

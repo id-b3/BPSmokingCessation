@@ -2,7 +2,6 @@
 
 import argparse
 import pandas as pd
-import numpy as np
 import os
 from scipy import stats
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
@@ -17,12 +16,21 @@ parser.add_argument("parameters",
 parser.add_argument("output",
                     type=str,
                     help="Path to output folder for results CSV file.")
+parser.add_argument("--healthy",
+                    action="store_true",
+                    help="Whether to analyse only the healthy population.")
 
 args = parser.parse_args()
 
 # Load DataFrame
 df = pd.read_csv(args.file)
 
+if args.healthy:
+    df = df[(df.GOLD_stage == "0")]
+    df = df[(df.copd_diagnosis == False)
+            & (df.asthma_diagnosis == False)
+            & (df.cancer_type != "LONGKANKER") &
+            (df.cancer_type != "BORST LONG")]
 # Parse parameters to test
 parameters = args.parameters.split(",")
 
