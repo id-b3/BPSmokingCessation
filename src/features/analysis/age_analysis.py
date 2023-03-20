@@ -62,13 +62,15 @@ for gender in ["MALE", "FEMALE"]:
             pearson, _ = pearsonr(X.T[0], y.T[0])
             model = sm.OLS(y, sm.add_constant(X)).fit()
             rsquared = model.rsquared
+            pval = round(model.pvalues[1], 4)
 
-# Create a dictionary to store results
+            # Create a dictionary to store results
             result = {
                 'Group': f"{gender}_{group}",
                 'Parameter': param,
                 'Pearson Correlation': pearson,
-                'R-squared': rsquared
+                'R-squared': rsquared,
+                'P-value': pval
             }
             results.append(result)
 

@@ -42,7 +42,8 @@ def main(args):
                          x="Age At Scan",
                          y=param,
                          hue="Smoking Status",
-                         robust=True)
+                         robust=True,
+                         scatter_kws={'alpha': 0.3})
         sns.despine(left=True)
         fig.fig.savefig(f"{str(out_path / param)}.png", dpi=300)
         plt.close()

@@ -44,7 +44,11 @@ def main(args):
                              hue="Gender",
                              split=True,
                              inner="quart",
-                             linewidth=1.5)
+                             linewidth=1.5,
+                             palette={
+                                 "MALE": "b",
+                                 "FEMALE": ".85"
+                             })
         sns.despine(left=True)
         fig.get_figure().savefig(f"{str(out_path / param)}.png", dpi=300)
         plt.close()
