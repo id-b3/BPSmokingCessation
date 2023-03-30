@@ -39,17 +39,19 @@ df['bp_or_avg'] = df[['bp_or_3', 'bp_or_4', 'bp_or_5']].mean(axis=1)
 # Create age categories
 age_label_5 = [
     '40-45', '45-50', '50-55', '55-60', '60-65', '65-70', '70-75', '75-80',
-    '80-85', '85-90', '90-95', '95-100'
+    '80-85', '85+'
 ]
-age_cut_5 = np.linspace(40, 100, 13)
+age_cut_5 = np.linspace(40, 85, 10)
+age_cut_5 = np.append(age_cut_5, 100)
 
 df['age_5yr'] = pd.cut(df['age_at_scan'],
                        bins=age_cut_5,
                        labels=age_label_5,
                        right=False)
 
-age_label_10 = ['40-50', '50-60', '60-70', '70-80', '80-90', '90-100']
-age_cut_10 = np.linspace(40, 100, 7)
+age_label_10 = ['40-50', '50-60', '60-70', '70-80', '80-90', '90+']
+age_cut_10 = np.linspace(40, 90, 6)
+age_cut_10 = np.append(age_cut_10, 100)
 
 df['age_10yr'] = pd.cut(df['age_at_scan'],
                         bins=age_cut_10,

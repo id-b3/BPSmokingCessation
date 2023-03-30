@@ -22,7 +22,7 @@ BP_HEALTHY:=$(DPRC)healthy_bp_db.csv
 BP_DISEASED:=$(DPRC)diseased_bp_db.csv
 
 # Params to analyse
-PARAMS:=bp_pi10,bp_tcount,bp_wt_avg,bp_la_avg,bp_wap_avg,bp_airvol
+PARAMS:=bp_pi10,bp_afd,bp_tcount,bp_wt_avg,bp_la_avg,bp_wap_avg,bp_airvol
 
 export DPRC BP_FINAL PARAMS
 
