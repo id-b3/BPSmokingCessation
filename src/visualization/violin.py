@@ -47,7 +47,7 @@ def main(args):
                              linewidth=1.5,
                              palette={
                                  "MALE": "b",
-                                 "FEMALE": ".85"
+                                 "FEMALE": "salmon"
                              })
         sns.despine(left=True)
         fig.get_figure().savefig(f"{str(out_path / param)}.png", dpi=300)

@@ -10,7 +10,7 @@ VIOLINS:=./reports/figures/violin/
 REGPLOT:=./reports/figures/regression/
 PERCPLOT:=./reports/figures/percentiles/
 
-all: percplot
+all: violin regplot percplot
 
 violin: final_bp_db.csv
 	./src/visualization/violin.py $< $(VIOLINS) $(PARAMS) --healthy
