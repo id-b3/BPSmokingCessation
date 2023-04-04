@@ -65,9 +65,10 @@ def main(args):
         '85+': 85
     })
 
-    for gender in ["MALE", "FEMALE"]:
-        for param in bps:
-            for sm_stat in ["Never Smoker", "Ex Smoker", "Current Smoker"]:
+    for param in bps:
+        fig, axs = plt.subplots(ncols=3, nrows=2)
+        for g_idx, gender in enumerate(["MALE", "FEMALE"]):
+            for sm_idx, sm_stat in enumerate(["Never Smoker", "Ex Smoker", "Current Smoker"]):
                 percentiles = df[(df["Smoking Status"] == sm_stat)
                                  & (df["Gender"] == gender)].groupby(
                                      "Age 2Yr")[param].quantile(
@@ -78,19 +79,18 @@ def main(args):
                 percentiles.Percentile = percentiles["Percentile"].apply(
                     lambda x: f"{x * 100:.0f}%")
 
-                fig = sns.lmplot(data=percentiles,
-                                 x="Age 2Yr",
-                                 y=param,
-                                 hue="Percentile",
-                                 scatter=False,
-                                 truncate=False,
-                                 palette=sns.color_palette([
-                                     "red", "orange", "green", "orange", "red"
-                                 ]),
-                                 ci=None,
-                                 robust=True,
-                                 line_kws={"alpha": 0.5})
-                # fig.ax.set_xticks(range(45,95,5))
+                sns.lmplot(data=percentiles,
+                           ax=axs[g_idx][sm_idx],
+                           x="Age 2Yr",
+                           y=param,
+                           hue="Percentile",
+                           scatter=False,
+                           truncate=False,
+                           palette=sns.color_palette(
+                               ["red", "orange", "green", "orange", "red"]),
+                           ci=None,
+                           robust=True,
+                           line_kws={"alpha": 0.5})
 
                 # Additional customization of the x-axis
                 plt.xlabel("Age")
@@ -98,7 +98,7 @@ def main(args):
                 plt.title(f"{gender.title()} {sm_stat}")
                 plt.tight_layout()
 
-                fig.fig.savefig(
+                fig.savefig(
                     f"{str(out_path / param)} {gender} {sm_stat}.png", dpi=300)
                 plt.close()
 
