@@ -5,7 +5,7 @@ import pandas as pd
 
 total_processed = 12041
 
-df = pd.read_csv(sys.argv[1])
+df = pd.read_csv(sys.argv[1], low_memory=False)
 
 df_spiro = df[df.GOLD_stage == '0']
 df_resp = df_spiro[(df_spiro.copd_diagnosis == False)

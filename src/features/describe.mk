@@ -7,7 +7,7 @@ SHELL := bash
 REPPATH=./reports/descriptive/
 
 DEMO_CSV=$(REPPATH)demographics.csv
-FLOW_MM=$(REPPATH)participant_flowchart.md
+FLOW_MM=$(REPPATH)participant_flowchart.csv
 
 all: $(DEMO_CSV) $(FLOW_MM)
 

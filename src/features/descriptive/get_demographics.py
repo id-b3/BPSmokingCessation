@@ -3,6 +3,8 @@ import argparse
 import pandas as pd
 from scipy.stats import ttest_ind
 
+from src.data.subgroup import get_healthy
+
 
 # Define a function to prettify variable names
 def prettify(var_name):
@@ -10,14 +12,10 @@ def prettify(var_name):
 
 
 def main(args):
-    data = pd.read_csv(args.in_file)
+    data = pd.read_csv(args.in_file, low_memory=False)
 
     if args.healthy:
-        data = data[(data.GOLD_stage == "0")]
-        data = data[(data.copd_diagnosis == False)
-                    & (data.asthma_diagnosis == False)
-                    & (data.cancer_type != "LONGKANKER") &
-                    (data.cancer_type != "BORST LONG")]
+        data = get_healthy(data)
 
     # Calculate descriptive statistics and t-test p-values
     result_dict = {'Variable': ["Participants"]}
