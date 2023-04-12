@@ -7,33 +7,20 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+from src.data.subgroup import get_healthy
+
 
 def main(args):
     df = pd.read_csv(args.in_db)
     if args.healthy:
-        df = df[(df.GOLD_stage == "0")]
-        df = df[(df.copd_diagnosis == False)
-                & (df.asthma_diagnosis == False)
-                & (df.cancer_type != "LONGKANKER") &
-                (df.cancer_type != "BORST LONG")]
+        df = get_healthy(df)
+
     df.columns = df.columns.str.replace('_', ' ').str.title()
 
     bps = args.param_list.replace('_', ' ').title().split(',')
 
     out_path = Path(args.out_dir)
     out_path.mkdir(parents=True, exist_ok=True)
-
-    def _get_smoking_status(row):
-        if row["Current Smoker"] is True:
-            return "Current Smoker"
-        if row["Ex Smoker"] is True:
-            return "Ex Smoker"
-        if row["Never Smoker"] is True:
-            return "Never Smoker"
-        else:
-            return None
-
-    df["Smoking Status"] = df.apply(_get_smoking_status, axis=1)
 
     sns.set_theme(style="whitegrid")
 
