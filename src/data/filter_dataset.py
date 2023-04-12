@@ -11,6 +11,8 @@ outpath = Path("./data/processed/")
 df = df[~df.bp_seg_error]
 df = df[(df.bp_leak_score != 0) | (df.bp_segmental_score != 0) |
         (df.bp_subsegmental_score != 0)]
+# ------ REMOVE missing smoking status
+df = df.dropna(subset=["smoking_status"])
 # ------ REMOVE outliers
 df = df[(df.bp_tcount <= 500)]
 # ------ SAVE DF

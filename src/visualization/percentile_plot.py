@@ -66,7 +66,7 @@ def main(args):
     })
 
     for param in bps:
-        for gender in ["MALE", "FEMALE"]:
+        for gender in ["Male", "Female"]:
             for sm_stat in ["Never Smoker", "Ex Smoker", "Current Smoker"]:
                 percentiles = df[(df["Smoking Status"] == sm_stat)
                                  & (df["Gender"] == gender)].groupby(

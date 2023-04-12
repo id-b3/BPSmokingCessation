@@ -27,8 +27,8 @@ def main(args):
         result_dict[f'Female Mean±SD {group.title()}'] = []
         result_dict[f'p-val {group.title()}'] = []
 
-        male_df = data[(data['gender'] == 'MALE') & (data[group] == True)]
-        female_df = data[(data['gender'] == 'FEMALE') & (data[group] == True)]
+        male_df = data[(data['gender'] == 'Male') & (data[group] == True)]
+        female_df = data[(data['gender'] == 'Female') & (data[group] == True)]
         male_count = len(male_df)
         female_count = len(female_df)
 

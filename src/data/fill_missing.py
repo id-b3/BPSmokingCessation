@@ -12,6 +12,7 @@ outpath = Path("./data/interim/")
 # Fill in missing gender values, drop the other columns
 df['gender'].fillna(df['gender_first'].fillna(df['gender_first2']),
                     inplace=True)
+df['gender'] = df['gender'].str.title()
 df['age_at_scan'].replace('#NUM!', np.nan, inplace=True)
 df['age_at_scan'].fillna(df['age'], inplace=True)
 df['age_at_scan'] = df['age_at_scan'].astype(float)
@@ -154,17 +155,16 @@ except TypeError:
 # Create "smoking_status" variable for easier separation
 def get_smoking_status(row):
     if row["current_smoker"] is True:
-        return "Current Smoker"
+        return "current_smoker"
     if row["ex_smoker"] is True:
-        return "Ex Smoker"
+        return "ex_smoker"
     if row["never_smoker"] is True:
-        return "Never Smoker"
+        return "never_smoker"
     else:
         return None
 
 
-df["smoking_status"] = df[["never_smoker", "current_smoker",
-                           "ex_smoker"]].apply(get_smoking_status, axis=1)
+df["smoking_status"] = df.apply(get_smoking_status, axis=1)
 
 df.drop([
     'ever_smoker_adu_c_2', 'ever_smoker_adu_c_22', 'ever_smoker_adu_c_22_2',

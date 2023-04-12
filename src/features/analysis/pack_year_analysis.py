@@ -93,17 +93,17 @@ for age in age_cutoff:
 
         # Conduct t-tests between male and female groups for ex-smokers
         ex_smokers_males = ex_smokers[ex_smokers['gender'] ==
-                                      'MALE']['pack_years']
+                                      'Male']['pack_years']
         ex_smokers_females = ex_smokers[ex_smokers['gender'] ==
-                                        'FEMALE']['pack_years']
+                                        'Female']['pack_years']
         ttest_result_ex = stats.ttest_ind(ex_smokers_males,
                                           ex_smokers_females,
                                           equal_var=False)
         # Conduct t-tests between male and female groups for current smokers
         current_smokers_males = current_smokers[current_smokers['gender'] ==
-                                                'MALE']['pack_years']
+                                                'Male']['pack_years']
         current_smokers_females = current_smokers[current_smokers['gender'] ==
-                                                  'FEMALE']['pack_years']
+                                                  'Female']['pack_years']
         ttest_result_current = stats.ttest_ind(current_smokers_males,
                                                current_smokers_females,
                                                equal_var=False)

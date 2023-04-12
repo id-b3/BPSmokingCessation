@@ -16,10 +16,10 @@ df = pd.read_csv(sys.stdin)
 df_healthy = df[df.GOLD_stage == "0"]
 df_unhealthy = df[(df.GOLD_stage != "0") & (df.copd_diagnosis != 1) &
                   (df.asthma_diagnosis != 1)]
-df_male_h = df_healthy[df_healthy.gender == "MALE"]
-df_female_h = df_healthy[df_healthy.gender == "FEMALE"]
-df_male_u = df_unhealthy[df_unhealthy.gender == "MALE"]
-df_female_u = df_unhealthy[df_unhealthy.gender == "FEMALE"]
+df_male_h = df_healthy[df_healthy.gender == "Male"]
+df_female_h = df_healthy[df_healthy.gender == "Female"]
+df_male_u = df_unhealthy[df_unhealthy.gender == "Male"]
+df_female_u = df_unhealthy[df_unhealthy.gender == "Female"]
 
 
 def run_test(data, male: bool = True, healthy: bool = True):

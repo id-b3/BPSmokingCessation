@@ -128,7 +128,7 @@ def analyse(df: pd.DataFrame, param_list: list, outpath: Path):
         plt.close()
 
         # Multivariate Regression Analysis using Ordinary Least Squares
-        X = df[["MALE", "Age", "Weight", "Total Lung Volume"]]
+        X = df[["Male", "Age", "Weight", "Total Lung Volume"]]
         X = sm.add_constant(X)
         y = df[param]
         model = sm.OLS(y, X).fit()
@@ -138,7 +138,7 @@ def analyse(df: pd.DataFrame, param_list: list, outpath: Path):
             fh.write(model.summary().as_csv())
 
         # Simple Linear Regression
-        for x in ["MALE", "FEMALE", "Age", "Weight", "Total Lung Volume"]:
+        for x in ["Male", "Female", "Age", "Weight", "Total Lung Volume"]:
             model = sm.OLS(y, df[x]).fit()
             with open(f"{str(out_lr)}/text/{x}_{param}.txt", "w") as fh:
                 fh.write(model.summary().as_text())

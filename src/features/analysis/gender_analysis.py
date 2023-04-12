@@ -5,6 +5,8 @@ import pandas as pd
 from scipy import stats
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
+from src.data.subgroup import get_healthy
+
 # Define command line arguments
 parser = argparse.ArgumentParser(
     description="Perform one-way ANOVA and Tukey's HS post-hoc test.")
@@ -25,28 +27,10 @@ args = parser.parse_args()
 df = pd.read_csv(args.file)
 
 if args.healthy:
-    df = df[(df.GOLD_stage == "0")]
-    df = df[(df.copd_diagnosis == False)
-            & (df.asthma_diagnosis == False)
-            & (df.cancer_type != "LONGKANKER") &
-            (df.cancer_type != "BORST LONG")]
+    df = get_healthy(df)
+
 # Parse parameters to test
 parameters = args.parameters.split(",")
-
-
-def get_smoking_status(row):
-    if row["current_smoker"] is True:
-        return "current_smoker"
-    if row["ex_smoker"] is True:
-        return "ex_smoker"
-    if row["never_smoker"] is True:
-        return "never_smoker"
-    else:
-        return None
-
-
-df["smoking_status"] = df.apply(get_smoking_status, axis=1)
-df = df.dropna(subset=["smoking_status"])
 
 
 # Function to perform one-way ANOVA and Tukey's test
@@ -72,7 +56,7 @@ def perform_anova_and_tukey(dataframe, parameter):
 results = []
 
 # Perform tests for each gender and parameter
-for gender in ["MALE", "FEMALE"]:
+for gender in ["Male", "Female"]:
     gender_df = df[df["gender"] == gender]
     for param in parameters:
         significant, anova, tukey = perform_anova_and_tukey(gender_df, param)

@@ -48,7 +48,7 @@ data["smoking_status"] = data.apply(get_smoking_status, axis=1)
 data = data.dropna(subset=["smoking_status"])
 
 # Create separate models for male and female groups
-for gender in ['MALE', 'FEMALE']:
+for gender in ['Male', 'Female']:
     gender_data = data[data['gender'] == gender]
 
     # Perform multivariate linear regression for each dependent variable
