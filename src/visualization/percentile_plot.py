@@ -88,7 +88,8 @@ def main(args):
                                      "red", "orange", "green", "orange", "red"
                                  ]),
                                  ci=None,
-                                 robust=True,
+                                 order=2,
+                                 # robust=True,
                                  line_kws={"alpha": 0.5})
 
                 # Additional customization of the x-axis
