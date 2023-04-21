@@ -4,7 +4,8 @@ import argparse
 import pandas as pd
 from scipy import stats
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
-
+import os
+print(os.getcwd())
 from src.data.subgroup import get_healthy
 
 # Define command line arguments

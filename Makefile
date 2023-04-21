@@ -23,7 +23,9 @@ BP_DISEASED:=$(DPRC)diseased_bp_db.csv
 
 # Params to analyse
 PARAMS:=bp_pi10,bp_afd,bp_tcount,bp_wt_avg,bp_la_avg,bp_wap_avg,bp_airvol
+PYTHONPATH=$(CURDIR)
 
+export PYTHONPATH
 export DPRC BP_FINAL PARAMS
 
 #################################################################################
@@ -47,6 +49,7 @@ data_visualise:
 	$(MAKE) -f ./src/visualization/make_plots.mk -C $(PROJECT_DIR)
 
 data_analyse:
+	echo $(PYTHONPATH)
 	$(MAKE) -f ./src/features/analyse_data.mk -C $(PROJECT_DIR)
 
 ## Test the variables for normality

@@ -39,9 +39,15 @@ for gender in ['Male', 'Female']:
     for param in params:
         # Extract independent variables
         independent_vars = [
-            'age_at_scan', 'weight_at_scan', 'pack_year_categories', 'never_smoker',
-            'ex_smoker', 'current_smoker', 'bp_tlv'
+            'age_at_scan', 'weight_at_scan', 'pack_year_categories',
+            'never_smoker', 'ex_smoker', 'current_smoker', 'length_at_scan'
         ]
+
+        for var in independent_vars:
+            if gender_data[var].dtype == int or gender_data[var].dtype == float:
+                gender_data[var] = (gender_data[var] - gender_data[var].min()
+                                    ) / (gender_data[var].max() -
+                                         gender_data[var].min())
 
         # Create formula for the model
         formula = param + ' ~ ' + ' + '.join(independent_vars)
