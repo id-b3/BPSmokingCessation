@@ -17,30 +17,28 @@ def main(args):
     if args.healthy:
         data = get_healthy(data)
 
-    # Calculate descriptive statistics and t-test p-values
-    result_dict = {'Variable': ["Participants"]}
+    # Define the descriptive stats function
+    def descriptive_stats(df, group, result_dict):
+        male_df = df[(df['gender'] == 'Male')]
+        female_df = df[(df['gender'] == 'Female')]
+        male_count = len(male_df)
+        female_count = len(female_df)
 
-    for group in ['never_smoker', 'ex_smoker', 'current_smoker']:
         result_dict[f'Male Mean±SD {group.title()}'] = []
         result_dict[f'Female Mean±SD {group.title()}'] = []
         result_dict[f'p-val {group.title()}'] = []
 
-        male_df = data[(data['gender'] == 'Male') & (data[group] == True)]
-        female_df = data[(data['gender'] == 'Female') & (data[group] == True)]
-        male_count = len(male_df)
-        female_count = len(female_df)
-
         result_dict[f'Male Mean±SD {group.title()}'].append(
-            f'{male_count} ({male_count/len(data)*100:.1f})%')
+            f'{male_count} ({male_count/len(data)*100:.1f})')
         result_dict[f'Female Mean±SD {group.title()}'].append(
-            f'{female_count} ({female_count/len(data)*100:.1f}%)')
+            f'{female_count} ({female_count/len(data)*100:.1f})')
         result_dict[f'p-val {group.title()}'].append('NA')
 
         for var in [
                 'age_at_scan', 'length_at_scan', 'weight_at_scan', 'bp_tlv',
                 'pack_years', 'fev1', 'fev1_pp', 'fvc', 'fev1_fvc', 'bp_pi10',
-                'bp_wap_avg', 'bp_la_avg', 'bp_wt_avg', 'bp_ir_avg',
-                'bp_or_avg', 'bp_tcount', 'bp_airvol'
+                'bp_wap_avg', 'bp_la_avg', 'bp_wt_avg', 'bp_afd', 'bp_tcount',
+                'bp_airvol'
         ]:
 
             male_data = male_df[var].dropna()
@@ -62,6 +60,17 @@ def main(args):
             result_dict[f'Female Mean±SD {group.title()}'].append(
                 f'{female_mean:.2f}±{female_std:.2f}')
             result_dict[f'p-val {group.title()}'].append(f'{p_value:.4f}')
+
+    # Calculate descriptive statistics and t-test p-values
+    result_dict = {'Variable': ["Participants"]}
+    for group in ['all', 'never_smoker', 'ex_smoker', 'current_smoker']:
+        if group == 'all':
+
+            descriptive_stats(data, group, result_dict)
+        else:
+
+            descriptive_stats(data[data.smoking_status == group], group,
+                              result_dict)
 
     # Create a DataFrame with the results
     result_df = pd.DataFrame(result_dict)
