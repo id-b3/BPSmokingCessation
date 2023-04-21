@@ -18,17 +18,20 @@ df['age_at_scan'].fillna(df['age'], inplace=True)
 df['age_at_scan'] = df['age_at_scan'].astype(float)
 df['weight_at_scan'].fillna(df['bodyweight_kg_all_m_1_max2'].fillna(
     df['bodyweight_kg_all_m_1_max'].fillna(df['bodyweight_current_adu_q_1'])),
-    inplace=True)
+                            inplace=True)
 df['length_at_scan'].fillna(df['bodylength_cm_all_m_1_max2'], inplace=True)
 df['length_at_scan'].fillna(df['bodylength_cm_all_m_1_max'], inplace=True)
+
+# Calculate BMI
+df['bmi'] = df['weight_at_scan'] / (df['length_at_scan']/100)**2
 
 df.drop([
     'gender_first', 'gender_first2', 'bodyweight_kg_all_m_1_max2',
     'bodyweight_kg_all_m_1_max', 'bodyweight_current_adu_q_1',
     'bodylength_cm_all_m_1_max2', 'bodylength_cm_all_m_1_max', 'age'
 ],
-    axis=1,
-    inplace=True)
+        axis=1,
+        inplace=True)
 
 # Calc mean BPs
 df['bp_wap_avg'] = df[['bp_wap_3', 'bp_wap_4', 'bp_wap_5']].mean(axis=1)
@@ -135,20 +138,20 @@ df['pack_years_calc'] = df['smoking_duration'] * df['total_frequency'] / 20
 df['pack_years'].fillna(df['pack_years_calc'], inplace=True)
 
 # Fill never smoker = False if any of the others is True
-df.loc[df.never_smoker.isna() & (~df.current_smoker.isna() & df.current_smoker) |
-       (df.ever_smoker.notna() & df.ever_smoker) |
+df.loc[df.never_smoker.isna() & (~df.current_smoker.isna() & df.current_smoker)
+       | (df.ever_smoker.notna() & df.ever_smoker) |
        (df.ex_smoker.notna() & df.ex_smoker), ['never_smoker']] = False
 
 # Fill never smoker = True if ALL the others are False
 try:
-    df.loc[(df.never_smoker.isna() & df.current_smoker.notna() &
-            df.ever_smoker.notna() & df.ex_smoker.notna()) &
+    df.loc[(df.never_smoker.isna() & df.current_smoker.notna()
+            & df.ever_smoker.notna() & df.ex_smoker.notna()) &
            (~df.current_smoker & ~df.ex_smoker & ~df.ever_smoker),
            ['never_smoker']] = True
 except TypeError:
     print("All values False for smoking status, filling Never Smoker as True")
-    df.loc[(df.never_smoker.isna() & df.current_smoker.notna() &
-            df.ever_smoker.notna() & df.ex_smoker.notna()),
+    df.loc[(df.never_smoker.isna() & df.current_smoker.notna()
+            & df.ever_smoker.notna() & df.ex_smoker.notna()),
            ['never_smoker']] = True
 
 
@@ -165,6 +168,17 @@ def get_smoking_status(row):
 
 
 df["smoking_status"] = df.apply(get_smoking_status, axis=1)
+
+# Split pack-years to categories
+py_labels = ['0', '1-5', '5-10', '10-15', '15-20', '20+']
+py_categories = np.linspace(-5, 20, 6)
+py_categories = np.append(py_categories, 50)
+
+df['pack_year_categories'] = pd.cut(df['pack_years'],
+                                    bins=py_categories,
+                                    labels=py_labels,
+                                    right=False)
+df['pack_year_categories'].fillna("0", inplace=True)
 
 df.drop([
     'ever_smoker_adu_c_2', 'ever_smoker_adu_c_22', 'ever_smoker_adu_c_22_2',
@@ -194,8 +208,8 @@ df.drop([
     'max_other_freq', 'max_cigar_freq', 'max_ciga_freq', 'max_cig_freq',
     'total_freq_calc', 'pack_years_calc'
 ],
-    axis=1,
-    inplace=True)
+        axis=1,
+        inplace=True)
 
 # ------ RESPIRATORY DISEASE
 df['copd_diagnosis'] = df['copd_presence_adu_q_2'].fillna(
@@ -237,8 +251,8 @@ df.drop([
     'coughing_presence_adu_q_1', 'wheezing_presence_adu_q_1',
     'elon_wheeze_adu_q_01'
 ],
-    inplace=True,
-    axis=1)
+        inplace=True,
+        axis=1)
 
 # ------ SPIROMETRY
 df['fev1'] = df['spirometry_fev1_all_m_1_max2'].fillna(
@@ -263,8 +277,8 @@ df.drop([
     'fev1_lowerlimit_all_c_1_max2', 'fev1_lowerlimit_all_c_1_max',
     'fvc_lowerlimit_all_c_1_max2', 'fvc_lowerlimit_all_c_1_max'
 ],
-    inplace=True,
-    axis=1)
+        inplace=True,
+        axis=1)
 
 # ------ COPD GOLD Staging
 # GOLD 0: FEV1/FVC > fev1fvc_lln
@@ -288,4 +302,5 @@ df.loc[df.bp_segmental_score == -1, 'bp_segmental_score'] = np.nan
 df.loc[df.bp_subsegmental_score == -1, 'bp_subsegmental_score'] = np.nan
 
 # ------ SAVE DF
+df = df.round(3)
 df.to_csv(str(outpath / "bp_db_all.csv"))

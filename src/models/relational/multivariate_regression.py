@@ -4,6 +4,8 @@ import pandas as pd
 import statsmodels.api as sm
 import argparse
 
+from src.data.subgroup import get_healthy
+
 # Create argument parser
 parser = argparse.ArgumentParser(
     description='Perform multivariate linear regression analysis.')
@@ -26,26 +28,7 @@ data = pd.read_csv(args.input_csv)
 
 # Filter data by healthy status, if requested
 if args.healthy:
-    data = data[(data.GOLD_stage == "0")]
-    data = data[(data.copd_diagnosis == False)
-                & (data.asthma_diagnosis == False)
-                & (data.cancer_type != "LONGKANKER") &
-                (data.cancer_type != "BORST LONG")]
-
-
-def get_smoking_status(row):
-    if row["current_smoker"] is True:
-        return "current_smoker"
-    if row["ex_smoker"] is True:
-        return "ex_smoker"
-    if row["never_smoker"] is True:
-        return "never_smoker"
-    else:
-        return None
-
-
-data["smoking_status"] = data.apply(get_smoking_status, axis=1)
-data = data.dropna(subset=["smoking_status"])
+    data = get_healthy(data)
 
 # Create separate models for male and female groups
 for gender in ['Male', 'Female']:
@@ -56,8 +39,8 @@ for gender in ['Male', 'Female']:
     for param in params:
         # Extract independent variables
         independent_vars = [
-            'age_at_scan', 'weight_at_scan', 'pack_years', 'smoking_status',
-            'bp_tlv'
+            'age_at_scan', 'weight_at_scan', 'pack_year_categories', 'never_smoker',
+            'ex_smoker', 'current_smoker', 'bp_tlv'
         ]
 
         # Create formula for the model
