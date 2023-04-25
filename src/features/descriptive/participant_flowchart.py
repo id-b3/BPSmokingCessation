@@ -22,7 +22,7 @@ counts = {
     "Healthy Never-Smokers": len(df_resp[df_resp.never_smoker == True]),
     "Healthy Ex-Smokers": len(df_resp[df_resp.ex_smoker == True]),
     "Healthy Current-Smokers": len(df_resp[df_resp.current_smoker == True]),
-    "Healthy No-Status": 0
+    "Healthy No-Status": len(df["smoking_status"].isnull())
 }
 
 counts["Healthy No-Status"] = counts["Healthy"] - sum(

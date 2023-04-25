@@ -21,9 +21,10 @@ df['weight_at_scan'].fillna(df['bodyweight_kg_all_m_1_max2'].fillna(
                             inplace=True)
 df['length_at_scan'].fillna(df['bodylength_cm_all_m_1_max2'], inplace=True)
 df['length_at_scan'].fillna(df['bodylength_cm_all_m_1_max'], inplace=True)
+df['length_at_scan'] = df['length_at_scan']/100
 
 # Calculate BMI
-df['bmi'] = df['weight_at_scan'] / (df['length_at_scan']/100)**2
+df['bmi'] = df['weight_at_scan'] / (df['length_at_scan'])**2
 
 df.drop([
     'gender_first', 'gender_first2', 'bodyweight_kg_all_m_1_max2',

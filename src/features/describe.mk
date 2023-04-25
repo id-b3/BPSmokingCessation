@@ -17,7 +17,7 @@ all: $(DEMO_CSV) $(FLOW_MM)
 
 $(DEMO_CSV): $(BP_FINAL)
 	mkdir -p $(REPPATH)
-	./src/features/descriptive/get_demographics.py $< $@ $(H_FLAG)
+	./src/features/descriptive/demographics.py $< $@ $(H_FLAG)
 
 $(FLOW_MM): $(BP_FINAL)
 	mkdir -p $(REPPATH)

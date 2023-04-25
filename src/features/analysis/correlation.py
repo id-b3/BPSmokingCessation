@@ -13,6 +13,9 @@ parser.add_argument("input_csv", help="Input CSV file name")
 parser.add_argument("parameters",
                     help="Comma-separated list of parameter names")
 parser.add_argument("output", help="Output CSV file name")
+parser.add_argument("ind_var",
+                    type=str,
+                    help="Independent variable.")
 parser.add_argument("--healthy",
                     action="store_true",
                     help="Only include 'never_smoker' group")
@@ -34,9 +37,10 @@ for gender in ["Male", "Female"]:
     # Loop parameters and calculate Pearson's cc and R-squared
     for param in params:
         for group in df["smoking_status"].unique():
-            df_param = gender_df.dropna(subset=[param, 'age_at_scan'])
+            df_param = gender_df.dropna(subset=[param, args.ind_var])
             df_param = df_param[df_param.smoking_status == group]
-            X = df_param[['age_at_scan']].values
+            print(f"Calculating {param} wrt {args.ind_var} for {gender} {group}")
+            X = df_param[[args.ind_var]].values
             y = df_param[[param]].values
             pearson, _ = pearsonr(X.T[0], y.T[0])
             model = sm.OLS(y, sm.add_constant(X)).fit()

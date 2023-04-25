@@ -29,7 +29,7 @@ all: $(BP_FINAL)
 	echo "Done"
 
 $(BP_FINAL): $(BP_FILT_CSV)
-	< $< ./src/data/fill_missing.py
+	< $< ./src/data/fill_and_merge.py
 	< $(BP_ALL_CSV) ./src/data/filter_dataset.py
 
 $(BP_FILT_CSV): $(MRG_CSV)
@@ -38,10 +38,12 @@ $(BP_FILT_CSV): $(MRG_CSV)
 # Merge all CSV files into one using the patientID as an index
 $(MRG_CSV): $(SPLT_CSV) $(CSV_FILES) $(IMA_CSV)
 	csvjoin --left -c patientID $^ > $@
+	wc -l $@
 
 # Expand the semicolon delim'd bps and change participant_id to patientID
 $(SPLT_CSV): $(SEG_CSV)
 	csvjoin <(csvcut -C $(BP_COLS) $< | sed 's/participant_id/patientID/') <(csvcut -c $(BP_COLS) $< | awk -f ./src/data/expand_bps.awk) > $@
+	wc -l $@
 
 # Convert the SPSS files into CSV files
 $(CSV_FILES): $(DINT)%.csv : %.sav

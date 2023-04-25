@@ -42,7 +42,7 @@ requirements: test_environment
 ## Make Dataset
 data: ; $(MAKE) -f ./src/data/make_data.mk -C $(PROJECT_DIR)
 
-run_study: test_norm data_visualise data_analyse
+run_study: data_describe data_visualise data_analyse data_model
 
 ## Summary of every variable in the dataset
 data_describe: ; $(MAKE) -f ./src/features/describe.mk -C $(PROJECT_DIR)
@@ -51,18 +51,23 @@ data_describe: ; $(MAKE) -f ./src/features/describe.mk -C $(PROJECT_DIR)
 data_visualise: ; $(MAKE) -f ./src/visualization/make_plots.mk -C $(PROJECT_DIR)
 
 data_analyse:
-	echo $(PYTHONPATH)
-	$(MAKE) -f ./src/features/analyse_data.mk -C $(PROJECT_DIR)
+	$(MAKE) -f ./src/features/analyse.mk -C $(PROJECT_DIR)
+
+data_model:
+	$(MAKE) -f ./src/models/model.mk -C $(PROJECT_DIR)
 
 ## Test the variables for normality
 test_norm: ; $(MAKE) -f ./src/features/test_norm.mk -C $(PROJECT_DIR)
 
 ## Delete all compiled Python files
-clean:
+clean_data:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
 	rm -rf ./data/interim/*
 	rm -rf ./data/processed/*
+
+clean_reports:
+	rm -rf ./reports/*
 
 ## Test python environment is setup correctly
 test_environment:

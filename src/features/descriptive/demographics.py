@@ -2,6 +2,7 @@
 import argparse
 import pandas as pd
 from scipy.stats import ttest_ind
+from pathlib import Path
 
 from src.data.subgroup import get_healthy
 
@@ -66,7 +67,7 @@ def main(args):
     for group in ['all', 'never_smoker', 'ex_smoker', 'current_smoker']:
         if group == 'all':
             descriptive_stats(data, group, result_dict)
-            data.describe().to_csv("./reports/descriptive/all_healthy_demo.csv")
+            data.describe().to_csv(str(Path(args.out_file).parent / "demographics_all.csv"))
         else:
             descriptive_stats(data[data.smoking_status == group], group,
                               result_dict)
