@@ -9,13 +9,15 @@ import scipy.stats as stats
 import statsmodels.api as sm
 from matplotlib.pyplot import text
 
+from src.data.subgroup import get_healthy
+
 output_dir = Path("./reports/figures/test_normal/")
 output_dir.mkdir(parents=True, exist_ok=True)
 
 df = pd.read_csv(sys.stdin)
-df_healthy = df[df.GOLD_stage == "0"]
-df_unhealthy = df[(df.GOLD_stage != "0") & (df.copd_diagnosis != 1) &
-                  (df.asthma_diagnosis != 1)]
+df_healthy = get_healthy(df)
+df_unhealthy = df[(df.GOLD_stage != "0") & (df.copd_diagnosis == 1) &
+                  (df.asthma_diagnosis == 1)]
 df_male_h = df_healthy[df_healthy.gender == "Male"]
 df_female_h = df_healthy[df_healthy.gender == "Female"]
 df_male_u = df_unhealthy[df_unhealthy.gender == "Male"]

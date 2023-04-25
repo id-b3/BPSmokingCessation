@@ -65,10 +65,9 @@ def main(args):
     result_dict = {'Variable': ["Participants"]}
     for group in ['all', 'never_smoker', 'ex_smoker', 'current_smoker']:
         if group == 'all':
-
             descriptive_stats(data, group, result_dict)
+            data.describe().to_csv("./reports/descriptive/all_healthy_demo.csv")
         else:
-
             descriptive_stats(data[data.smoking_status == group], group,
                               result_dict)
 

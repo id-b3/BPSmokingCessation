@@ -21,12 +21,15 @@ BP_FINAL:=$(DPRC)final_bp_db.csv
 BP_HEALTHY:=$(DPRC)healthy_bp_db.csv
 BP_DISEASED:=$(DPRC)diseased_bp_db.csv
 
+# Study target
+STUDY_HEALTHY ?= true
+
 # Params to analyse
 PARAMS:=bp_pi10,bp_afd,bp_tcount,bp_wt_avg,bp_la_avg,bp_wap_avg,bp_airvol
 PYTHONPATH=$(CURDIR)
 
 export PYTHONPATH
-export DPRC BP_FINAL PARAMS
+export DPRC BP_FINAL PARAMS STUDY_HEALTHY
 
 #################################################################################
 # COMMANDS                                                                      #
@@ -37,24 +40,22 @@ requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 ## Make Dataset
-data:
-	$(MAKE) -f ./src/data/make_data.mk -C $(PROJECT_DIR)
+data: ; $(MAKE) -f ./src/data/make_data.mk -C $(PROJECT_DIR)
+
+run_study: test_norm data_visualise data_analyse
 
 ## Summary of every variable in the dataset
-data_describe:
-	$(MAKE) -f ./src/features/describe.mk -C $(PROJECT_DIR)
+data_describe: ; $(MAKE) -f ./src/features/describe.mk -C $(PROJECT_DIR)
 
 ## Create Figures
-data_visualise:
-	$(MAKE) -f ./src/visualization/make_plots.mk -C $(PROJECT_DIR)
+data_visualise: ; $(MAKE) -f ./src/visualization/make_plots.mk -C $(PROJECT_DIR)
 
 data_analyse:
 	echo $(PYTHONPATH)
 	$(MAKE) -f ./src/features/analyse_data.mk -C $(PROJECT_DIR)
 
 ## Test the variables for normality
-test_norm:
-	$(MAKE) -f ./src/features/test_norm.mk -C $(PROJECT_DIR)
+test_norm: ; $(MAKE) -f ./src/features/test_norm.mk -C $(PROJECT_DIR)
 
 ## Delete all compiled Python files
 clean:
