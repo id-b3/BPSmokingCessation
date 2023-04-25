@@ -38,6 +38,7 @@ for param in params:
     # Extract independent variables
     independent_vars = ['gender', 'age_at_scan', 'bmi', 'pack_year_categories']
 
+    # Normalising the data
     for var in independent_vars:
         if data[var].dtype == int or data[var].dtype == float:
             data[var] = (data[var] - data[var].min()) / (data[var].max() -
@@ -51,6 +52,6 @@ for param in params:
     print(model.summary())
 
     # Save the results to a text file
-    output_file = args.output_dir + '/' + '_' + param + '_report.txt'
+    output_file = args.output_dir + '/' + 'normalised_' + param + '_report.txt'
     with open(output_file, 'w') as f:
         f.write(str(model.summary()))

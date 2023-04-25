@@ -4,7 +4,7 @@ SHELL := bash
 
 .PHONY: all clean
 
-REPPATH=./reports/modelling/
+REPPATH=./reports/models/
 
 ifeq ($(STUDY_HEALTHY),true)
 	H_FLAG = --healthy

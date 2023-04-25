@@ -1,28 +1,28 @@
 from pynomo.nomographer import Nomographer
 
-N_params_1 = {
+N_params_2 = {
     'u_min': 45,
-    'u_max': 95,
-    'function': lambda u: 0.004*u,
+    'u_max': 90,
+    'function': lambda u: -0.0036*u,
     'title': r'$Age$',
     'tick_levels': 2,
     'tick_text_levels': 1,
 }
 
-N_params_3 = {
-    'u_min': 1.20,
-    'u_max': 2.20,
-    'function': lambda u: 0.15*u,
-    'title': r'$Height$',
+N_params_1 = {
+    'u_min': 16.0,
+    'u_max': 31.0,
+    'function': lambda u: -0.0114*u,
+    'title': r'$BMI$',
     'tick_levels': 2,
     'tick_text_levels': 1,
     # 'scale_type': 'linear_smart',
 }
 
-N_params_2 = {
-    'u_min': 3.1,
-    'u_max': 4.1,
-    'function': lambda u: (3.0504-0.0262) - u,
+N_params_3 = {
+    'u_min': 3.3,
+    'u_max': 3.65,
+    'function': lambda u: u-2.9632,
     'title': r'$Pi10$',
     'tick_levels': 3,
     'tick_text_levels': 2,
@@ -35,7 +35,7 @@ block_1_params = {
     'f1_params': N_params_1,
     'f2_params': N_params_2,
     'f3_params': N_params_3,
-    'isopleth_values': [[60, 'x', 1.6], [50, 3.55, 'x']]
+    'isopleth_values': [[17, 45, "x"], [30, 80, "x"]]
 }
 
 main_params = {
