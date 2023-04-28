@@ -31,12 +31,12 @@ if args.healthy:
     data = get_healthy(data)
 
 data['pack_year_categories'] = data['pack_year_categories'].replace(
-    '0', 'never_smoker')
+    '0', '0 pack-years')
 # Perform multivariate linear regression for each dependent variable
 params = args.params.split(',')
 for param in params:
     # Extract independent variables
-    independent_vars = ['gender', 'age_at_scan', 'bmi', 'pack_year_categories']
+    independent_vars = ['gender', 'age_at_scan', 'bmi', 'current_smoker', 'pack_year_categories']
 
     # Normalising the data
     for var in independent_vars:

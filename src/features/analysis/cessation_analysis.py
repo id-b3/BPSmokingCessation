@@ -75,18 +75,23 @@ for param in params:
     }
     results.append(result)
 
-    # fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    x_values = np.linspace(data["years_since_quit"].min(), data["years_since_quit"].max(), 100)
+    y_values = model.params['Intercept'] + model.params['gender[T.Male]'] + (60 * model.params['age_at_scan']) + (24 * model.params['bmi']) + model.params['years_since_quit'] * x_values
+
+    ax.plot(x_values, y_values, color='red')
     # sns.regplot(x=data_param['years_since_quit'],
     #             y=model.predict(sm.add_constant(X)),
     #             scatter=False,
     #             ax=ax)
-    # ax.set_ylim(data_param[param].min(), data_param[param].max())
-    # ax.set_title(f"{param} with smoking cessation")
-    # ax.set_xlabel("Duration of smoking cessation")
-    # ax.set_ylabel(param)
-    # plt.tight_layout()
-    # fig.savefig(f"./reports/figures/regression/smoking_cessation_{param}.jpg",
-    #             dpi=300)
+    ax.set_ylim(data_param[param].min(), data_param[param].max())
+    ax.set_title(f"{param} with smoking cessation")
+    ax.set_xlabel("Duration of smoking cessation")
+    ax.set_ylabel(param)
+    plt.tight_layout()
+    fig.savefig(f"./reports/figures/regression/smoking_cessation_{param}.jpg",
+                dpi=300)
 
 # Create a pandas DataFrame from the results dictionary
 results_data = pd.DataFrame.from_dict(results)

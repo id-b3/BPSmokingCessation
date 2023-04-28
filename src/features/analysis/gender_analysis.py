@@ -4,8 +4,6 @@ import argparse
 import pandas as pd
 from scipy import stats
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
-import os
-print(os.getcwd())
 from src.data.subgroup import get_healthy
 
 # Define command line arguments
@@ -60,7 +58,8 @@ results = []
 for gender in ["Male", "Female"]:
     gender_df = df[df["gender"] == gender]
     for param in parameters:
-        significant, anova, tukey = perform_anova_and_tukey(gender_df, param)
+        param_df = gender_df.dropna(subset=[param])
+        significant, anova, tukey = perform_anova_and_tukey(param_df, param)
         result = {
             "gender": gender,
             "parameter": param,
