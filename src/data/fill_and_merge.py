@@ -171,9 +171,8 @@ def get_smoking_status(row):
 df["smoking_status"] = df.apply(get_smoking_status, axis=1)
 
 # Split pack-years to categories
-py_labels = ['0', '1-5', '5-10', '10-15', '15-20', '20+']
-py_categories = np.linspace(-5, 20, 6)
-py_categories = np.append(py_categories, 50)
+py_labels = ['0', '1-10', '10-20', '20+']
+py_categories = [-5, 0, 10, 20, 100]
 
 df['pack_year_categories'] = pd.cut(df['pack_years'],
                                     bins=py_categories,
