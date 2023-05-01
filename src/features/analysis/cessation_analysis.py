@@ -45,8 +45,6 @@ data['years_quit'] = pd.cut(data['years_since_quit'], [0, 5, 10, 15, 20, 100],
                             ])
 data = data[data.smoking_status == 'ex_smoker']
 
-pd.get_dummies(data['pack_year_categories'])
-
 # Loop over each parameter and calculate Pearson's correlation coefficient and R-squared
 for param in params:
     data_param = data.dropna(

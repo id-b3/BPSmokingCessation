@@ -36,7 +36,7 @@ data['pack_year_categories'] = data['pack_year_categories'].replace(
 params = args.params.split(',')
 for param in params:
     # Extract independent variables
-    independent_vars = ['gender', 'age_at_scan', 'length_at_scan', 'weight_at_scan', 'bp_tlv', 'current_smoker', 'pack_year_categories']
+    independent_vars = ['gender', 'age_at_scan', 'bmi', 'current_smoker', 'pack_year_categories']
 
     # Normalising the data
     for var in independent_vars:
