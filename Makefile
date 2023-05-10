@@ -23,6 +23,7 @@ BP_DISEASED:=$(DPRC)diseased_bp_db.csv
 
 # Study target
 STUDY_HEALTHY ?= true
+NORMALISE_DATA ?= true
 
 # Params to analyse
 PARAMS:=bp_pi10,bp_afd,bp_tcount,bp_wt_avg,bp_la_avg,bp_wap_avg,bp_airvol

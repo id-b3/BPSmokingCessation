@@ -1,30 +1,18 @@
 #!/usr/bin/env python3
-import argparse
 import pandas as pd
 import numpy as np
 from scipy.stats import ttest_ind, t
 from pathlib import Path
 
-from src.data.subgroup import get_healthy
 
-
-# Define a function to prettify variable names
-def prettify(var_name):
-    return var_name.replace('_', ' ').title()
-
-
-def main(args):
-    data = pd.read_csv(args.in_file, low_memory=False)
-
-    if args.healthy:
-        data = get_healthy(data)
+def calc_demographics(data, params, out_dir):
 
     # Define the descriptive stats function
-    def descriptive_stats(df, group, result_dict):
-        male_df = df[(df['gender'] == 'Male')]
-        female_df = df[(df['gender'] == 'Female')]
-        male_count = len(male_df)
-        female_count = len(female_df)
+    def descriptive_stats(data, group, result_dict):
+        male_dataframe = data[(data['gender'] == 'Male')]
+        female_dataframe = data[(data['gender'] == 'Female')]
+        male_count = len(male_dataframe)
+        female_count = len(female_dataframe)
 
         result_dict[f'Male Mean±SD {group.title()}'] = []
         result_dict[f'Female Mean±SD {group.title()}'] = []
@@ -51,8 +39,8 @@ def main(args):
                 'bp_airvol'
         ]:
 
-            male_data = male_df[var].dropna()
-            female_data = female_df[var].dropna()
+            male_data = male_dataframe[var].dropna()
+            female_data = female_dataframe[var].dropna()
 
             male_mean = male_data.mean()
             male_std = male_data.std()
@@ -61,7 +49,7 @@ def main(args):
                                  len(male_data) - 1,
                                  loc=male_mean,
                                  scale=male_se)
-            male_range = f"[{male_data.quantile(0.025)}-{male_data.quantile(0.975)}]"
+            male_range = f"[{male_data.quantile(0.025):.3f}-{male_data.quantile(0.975):.3f}]"
             female_mean = female_data.mean()
             female_std = female_data.std()
             female_se = female_std / np.sqrt(len(female_data))
@@ -69,17 +57,17 @@ def main(args):
                                  len(female_data) - 1,
                                  loc=female_mean,
                                  scale=female_se)
-            female_range = f"[{female_data.quantile(0.025)}-{female_data.quantile(0.975)}]"
+            female_range = f"[{female_data.quantile(0.025):.3f}-{female_data.quantile(0.975):.3f}]"
 
             t_stat, p_value = ttest_ind(male_data, female_data)
 
             if group == 'never_smoker' and var not in result_dict['Variable']:
-                result_dict['Variable'].append(prettify(var))
+                result_dict['Variable'].append(var)
 
             result_dict[f'Male Mean±SD {group.title()}'].append(
-                f'{male_mean:.2f}±{male_std:.2f}')
+                f'{male_mean:.2f}±{male_std:.3f}')
             result_dict[f'Female Mean±SD {group.title()}'].append(
-                f'{female_mean:.2f}±{female_std:.2f}')
+                f'{female_mean:.2f}±{female_std:.3f}')
             result_dict[f'p-val {group.title()}'].append(f'{p_value:.4f}')
             result_dict[f'Male 99% CI {group.title()}'].append(male_ci)
             result_dict[f'Female 99% CI {group.title()}'].append(female_ci)
@@ -92,22 +80,12 @@ def main(args):
         if group == 'all':
             descriptive_stats(data, group, result_dict)
             data.describe().to_csv(
-                str(Path(args.out_file).parent / "demographics_all.csv"))
+                str(out_dir / "demographics_all.csv"))
         else:
             descriptive_stats(data[data.smoking_status == group], group,
                               result_dict)
 
     # Create a DataFrame with the results
     result_df = pd.DataFrame(result_dict)
-    result_df.to_csv(args.out_file, index=False)
+    result_df.to_csv(str(out_dir / "demographics.csv"), index=False)
 
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("in_file", type=str, help="Input database csv.")
-    parser.add_argument("out_file",
-                        type=str,
-                        help="Output report destination.")
-    parser.add_argument("--healthy", action="store_true", help="Healthy only")
-    args = parser.parse_args()
-    main(args)
