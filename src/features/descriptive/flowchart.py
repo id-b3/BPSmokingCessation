@@ -3,7 +3,7 @@ import pandas as pd
 from src.data.util.constants import SCANS_PROCESSED
 
 
-def calc_inclusion_chart(data: pd.DataFrame, out_path: Path):
+def make_chart(data: pd.DataFrame, out_path: Path):
     data_spiro = data[data.GOLD_stage == '0']
     data_resp = data_spiro[(data_spiro.copd_diagnosis == False)
                        & (data_spiro.asthma_diagnosis == False)

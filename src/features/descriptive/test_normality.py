@@ -11,8 +11,6 @@ from matplotlib.pyplot import text
 
 from src.data.subgroup import get_healthy
 
-output_dir = Path("./reports/figures/test_normal/")
-output_dir.mkdir(parents=True, exist_ok=True)
 
 df = pd.read_csv(sys.stdin)
 df_healthy = get_healthy(df)
