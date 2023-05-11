@@ -50,6 +50,7 @@ def calc_demographics(data, params, out_dir):
                                  loc=male_mean,
                                  scale=male_se)
             male_range = f"[{male_data.quantile(0.025):.3f}-{male_data.quantile(0.975):.3f}]"
+
             female_mean = female_data.mean()
             female_std = female_data.std()
             female_se = female_std / np.sqrt(len(female_data))
@@ -65,12 +66,12 @@ def calc_demographics(data, params, out_dir):
                 result_dict['Variable'].append(var)
 
             result_dict[f'Male Mean±SD {group.title()}'].append(
-                f'{male_mean:.2f}±{male_std:.3f}')
+                f'{male_mean:.3f}±{male_std:.3f}')
             result_dict[f'Female Mean±SD {group.title()}'].append(
-                f'{female_mean:.2f}±{female_std:.3f}')
+                f'{female_mean:.3f}±{female_std:.3f}')
             result_dict[f'p-val {group.title()}'].append(f'{p_value:.4f}')
-            result_dict[f'Male 99% CI {group.title()}'].append(male_ci)
-            result_dict[f'Female 99% CI {group.title()}'].append(female_ci)
+            result_dict[f'Male 99% CI {group.title()}'].append(f'{male_ci[0]:.3f}-{male_ci[1]:.3f}')
+            result_dict[f'Female 99% CI {group.title()}'].append(f'{female_ci[0]:.3f}-{female_ci[1]:.3f}')
             result_dict[f'Male 95% Range {group.title()}'].append(male_range)
             result_dict[f'Female 95% Range {group.title()}'].append(female_range)
 
