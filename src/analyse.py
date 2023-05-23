@@ -11,7 +11,15 @@ from features.comparative import smoking
 from models.linear import univariate, multivariate
 from visualization import violin, regression, percentile
 
-runs = ["descriptive", "comparative", "regression", "clustering", "visualisation"]
+runs = [
+    "descriptive", "comparative", "regression", "clustering", "visualisation"
+]
+group_opts = ["age_10yr", "smoking_status"]
+demo_params = [
+    'age_at_scan', 'length_at_scan', 'weight_at_scan', 'bp_tlv', 'pack_years',
+    'fev1', 'fev1_pp', 'fvc', 'fev1_fvc', 'bp_pi10', 'bp_wap_avg', 'bp_la_avg',
+    'bp_wt_avg', 'bp_afd', 'bp_tcount', 'bp_airvol'
+]
 
 src_dir = Path(__file__).resolve().parent
 logging.config.fileConfig(src_dir / "logging.conf")
@@ -31,6 +39,8 @@ def main(args):
         data = data_all.copy()
         main_out_dir = main_out_dir / "all"
 
+    main_out_dir = main_out_dir / args.group_by
+
     # Normalise parameters if specified (height is default)
     if args.normalised:
         data = normalise_bps(data, bps)
@@ -38,23 +48,36 @@ def main(args):
     else:
         main_out_dir = main_out_dir / "not-normalised"
 
+
     run_funcs = {
-        runs[0]: lambda: (
-            demographics.calc_demographics(data.copy(deep=True), bps, out_path),
+        runs[0]:
+        lambda: (
+            demographics.calc_demographics(data.copy(deep=True), demo_params, out_path,
+                                           args.group_by),
             flowchart.make_chart(data_all.copy(deep=True), out_path),
         ),
-        runs[1]: lambda: (smoking.compare(data.copy(deep=True), bps, out_path)),
-        runs[2]: lambda: (
-            univariate.fit_analyse(data.copy(deep=True), bps, "length_at_scan", out_path),
-            univariate.fit_analyse(data.copy(deep=True), bps, "age_at_scan", out_path),
-            univariate.fit_analyse(data.copy(deep=True), bps, "weight_at_scan", out_path),
+        runs[1]:
+        lambda: (smoking.compare(data.copy(deep=True), bps, out_path)),
+        runs[2]:
+        lambda: (
+            univariate.fit_analyse(data.copy(deep=True), bps, "length_at_scan",
+                                   out_path),
+            univariate.fit_analyse(data.copy(deep=True), bps, "age_at_scan",
+                                   out_path),
+            univariate.fit_analyse(data.copy(deep=True), bps, "weight_at_scan",
+                                   out_path),
             univariate.fit_analyse(data.copy(deep=True), bps, "bmi", out_path),
-            univariate.fit_analyse(data.copy(deep=True), bps, "pack_years", out_path),
-            multivariate.fit_analyse(data.copy(deep=True), bps, out_path, False, logger),
-            multivariate.fit_analyse(data.copy(deep=True), bps, out_path, True, logger),
+            univariate.fit_analyse(data.copy(deep=True), bps, "pack_years",
+                                   out_path),
+            multivariate.fit_analyse(data.copy(deep=True), bps, out_path,
+                                     False, logger),
+            multivariate.fit_analyse(data.copy(deep=True), bps, out_path, True,
+                                     logger),
         ),
-        runs[3]: lambda: (),
-        runs[4]: lambda: (
+        runs[3]:
+        lambda: (),
+        runs[4]:
+        lambda: (
             percentile.make_plots(data.copy(deep=True), bps, out_path),
             violin.make_plots(data.copy(deep=True), bps, out_path),
             regression.make_plots(data.copy(deep=True), bps, out_path),
@@ -72,10 +95,12 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("in_file", type=str, help="Input database csv.")
-    parser.add_argument(
-        "param_list", type=str, help="Comma separated list of params to process."
-    )
-    parser.add_argument("out_directory", type=str, help="Output report destination.")
+    parser.add_argument("param_list",
+                        type=str,
+                        help="Comma separated list of params to process.")
+    parser.add_argument("out_directory",
+                        type=str,
+                        help="Output report destination.")
     parser.add_argument(
         "--to_run",
         default=["descriptive"],
@@ -83,9 +108,15 @@ if __name__ == "__main__":
         choices=runs,
         help="Runs to execute. Default: descriptive.",
     )
-    parser.add_argument("--healthy", action="store_true", help="Healthy only")
     parser.add_argument(
-        "--normalised", action="store_true", help="Normalise parameters"
+        "--group_by",
+        default="smoking_status",
+        choices=group_opts,
+        help="Split data by. Default: smoking_status.",
     )
+    parser.add_argument("--healthy", action="store_true", help="Healthy only")
+    parser.add_argument("--normalised",
+                        action="store_true",
+                        help="Normalise parameters")
     args = parser.parse_args()
     main(args)

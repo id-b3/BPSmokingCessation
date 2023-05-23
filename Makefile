@@ -24,6 +24,7 @@ BP_DISEASED:=$(DPRC)diseased_bp_db.csv
 # Study target
 STUDY_HEALTHY ?= true
 NORMALISE_DATA ?= true
+GROUP_BY ?= "smoking_status"
 
 # Params to analyse
 PARAMS:=bp_pi10,bp_tcount,bp_wt_avg,bp_la_avg,bp_wap_avg
@@ -60,7 +61,7 @@ data: ; $(MAKE) -f ./src/data/make_data.mk -C $(PROJECT_DIR)
 run_study: data_describe data_visualise data_analyse data_model
 
 ## Summary of every variable in the dataset
-data_describe: ; ./src/analyse.py $(BP_FINAL) $(PARAMS) $(REPORTS) $(HEALTHY_FLAG) $(NORMALISE_FLAG) --to_run descriptive
+data_describe: ; ./src/analyse.py $(BP_FINAL) $(PARAMS) $(REPORTS) $(HEALTHY_FLAG) $(NORMALISE_FLAG) --to_run descriptive --group_by $(GROUP_BY)
 
 ## Create Figures
 data_visualise: ; ./src/analyse.py $(BP_FINAL) $(PARAMS) $(REPORTS) $(HEALTHY_FLAG) $(NORMALISE_FLAG) --to_run visualisation

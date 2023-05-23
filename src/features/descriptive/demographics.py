@@ -5,7 +5,9 @@ from scipy.stats import ttest_ind, t
 from pathlib import Path
 
 
-def calc_demographics(data, params, out_dir):
+def calc_demographics(data, params, out_dir, split_by):
+
+    groups = data[split_by].dropna().unique().tolist()
 
     # Define the descriptive stats function
     def descriptive_stats(data, group, result_dict):
@@ -32,12 +34,7 @@ def calc_demographics(data, params, out_dir):
         result_dict[f'Male 95% Range {group.title()}'].append('NA')
         result_dict[f'Female 95% Range {group.title()}'].append('NA')
 
-        for var in [
-                'age_at_scan', 'length_at_scan', 'weight_at_scan', 'bp_tlv',
-                'pack_years', 'fev1', 'fev1_pp', 'fvc', 'fev1_fvc', 'bp_pi10',
-                'bp_wap_avg', 'bp_la_avg', 'bp_wt_avg', 'bp_afd', 'bp_tcount',
-                'bp_airvol'
-        ]:
+        for var in params:
 
             male_data = male_dataframe[var].dropna()
             female_data = female_dataframe[var].dropna()
@@ -62,7 +59,7 @@ def calc_demographics(data, params, out_dir):
 
             t_stat, p_value = ttest_ind(male_data, female_data)
 
-            if group == 'never_smoker' and var not in result_dict['Variable']:
+            if group == groups[0] and var not in result_dict['Variable']:
                 result_dict['Variable'].append(var)
 
             result_dict[f'Male Mean±SD {group.title()}'].append(
@@ -77,13 +74,13 @@ def calc_demographics(data, params, out_dir):
 
     # Calculate descriptive statistics and t-test p-values
     result_dict = {'Variable': ["Participants"]}
-    for group in ['all', 'never_smoker', 'ex_smoker', 'current_smoker']:
+    for group in ['all'] + groups:
         if group == 'all':
             descriptive_stats(data, group, result_dict)
             data.describe().to_csv(
                 str(out_dir / "demographics_all.csv"))
         else:
-            descriptive_stats(data[data.smoking_status == group], group,
+            descriptive_stats(data[data[split_by] == group], group,
                               result_dict)
 
     # Create a DataFrame with the results
