@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
 import argparse
+import logging
+import logging.config
 import pandas as pd
 from pathlib import Path
 
-from data.util.subgroup import get_healthy, normalise_bps
+from data.util.dataframe import get_healthy, normalise_bps
 from features.descriptive import demographics, flowchart
-from features.comparative import compare_sex
+from features.comparative import smoking
+from models.linear import univariate, multivariate
+from visualization import violin, regression, percentile
 
 runs = ["descriptive", "comparative", "regression", "clustering", "visualisation"]
+
+src_dir = Path(__file__).resolve().parent
+logging.config.fileConfig(src_dir / "logging.conf")
+logger = logging.getLogger("BronchialParameters")
 
 
 def main(args):
@@ -32,20 +40,30 @@ def main(args):
 
     run_funcs = {
         runs[0]: lambda: (
-            demographics.calc_demographics(data, bps, out_path),
-            flowchart.make_chart(data, out_path),
+            demographics.calc_demographics(data.copy(deep=True), bps, out_path),
+            flowchart.make_chart(data_all.copy(deep=True), out_path),
         ),
-        runs[1]: lambda: (
-            compare_sex.compare(data, bps, out_path)
+        runs[1]: lambda: (smoking.compare(data.copy(deep=True), bps, out_path)),
+        runs[2]: lambda: (
+            univariate.fit_analyse(data.copy(deep=True), bps, "length_at_scan", out_path),
+            univariate.fit_analyse(data.copy(deep=True), bps, "age_at_scan", out_path),
+            univariate.fit_analyse(data.copy(deep=True), bps, "weight_at_scan", out_path),
+            univariate.fit_analyse(data.copy(deep=True), bps, "bmi", out_path),
+            univariate.fit_analyse(data.copy(deep=True), bps, "pack_years", out_path),
+            multivariate.fit_analyse(data.copy(deep=True), bps, out_path, False, logger),
+            multivariate.fit_analyse(data.copy(deep=True), bps, out_path, True, logger),
         ),
-        runs[2]: lambda: (),
         runs[3]: lambda: (),
-        runs[4]: lambda: (),
+        runs[4]: lambda: (
+            percentile.make_plots(data.copy(deep=True), bps, out_path),
+            violin.make_plots(data.copy(deep=True), bps, out_path),
+            regression.make_plots(data.copy(deep=True), bps, out_path),
+        ),
     }
 
     # Run the analysis based on the desired run
     for run in args.to_run:
-        print(run)
+        logger.info(f"Running {run} analysis...")
         out_path = main_out_dir / run
         out_path.mkdir(parents=True, exist_ok=True)
         run_funcs[run]()
