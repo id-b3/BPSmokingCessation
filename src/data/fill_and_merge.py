@@ -10,19 +10,27 @@ outpath = Path("./data/interim/")
 
 # ------ PARTICIPANT CHARACTERISTICS
 # Fill in missing sex values, drop the other columns
-# Height is in meter, weight in kg, age in years. All at scan time.
-df['sex'].fillna(df['gender_first'].fillna(df['gender_first2']),
+df['gender'].fillna(df['gender_first'].fillna(df['gender_first2']),
                     inplace=True)
-df['sex'] = df['sex'].str.title()
-df['age'].replace('#NUM!', np.nan, inplace=True)
-df['age'].fillna(df['age'], inplace=True)
-df['age'] = df['age'].astype(float)
-df['weight'].fillna(df['bodyweight_kg_all_m_1_max2'].fillna(
+df['gender'] = df['gender'].str.title()
+df['age_at_scan'].replace('#NUM!', np.nan, inplace=True)
+df['age_at_scan'].fillna(df['age'], inplace=True)
+df['age_at_scan'] = df['age_at_scan'].astype(float)
+df.drop(['age'], axis=1, inplace=True)
+df['weight_at_scan'].fillna(df['bodyweight_kg_all_m_1_max2'].fillna(
     df['bodyweight_kg_all_m_1_max'].fillna(df['bodyweight_current_adu_q_1'])),
                             inplace=True)
-df['height'].fillna(df['bodylength_cm_all_m_1_max2'], inplace=True)
-df['height'].fillna(df['bodylength_cm_all_m_1_max'], inplace=True)
-df['height'] = df['height']/100
+df['length_at_scan'].fillna(df['bodylength_cm_all_m_1_max2'], inplace=True)
+df['length_at_scan'].fillna(df['bodylength_cm_all_m_1_max'], inplace=True)
+df['length_at_scan'] = df['length_at_scan'] / 100
+
+df = df.rename(
+    columns={
+        'gender': 'sex',
+        'age_at_scan': 'age',
+        'weight_at_scan': 'weight',
+        'length_at_scan': 'height'
+    })
 
 # Calculate BMI
 df['bmi'] = df['weight'] / (df['height'])**2
@@ -30,7 +38,7 @@ df['bmi'] = df['weight'] / (df['height'])**2
 df.drop([
     'gender_first', 'gender_first2', 'bodyweight_kg_all_m_1_max2',
     'bodyweight_kg_all_m_1_max', 'bodyweight_current_adu_q_1',
-    'bodylength_cm_all_m_1_max2', 'bodylength_cm_all_m_1_max', 'age'
+    'bodylength_cm_all_m_1_max2', 'bodylength_cm_all_m_1_max'
 ],
         axis=1,
         inplace=True)
@@ -106,8 +114,7 @@ df['smoking_duration'] = df['smoking_duration_adu_c_22'].fillna(
                 df['smoking_duration_adu_c_22_4']))))
 
 # Calculate missing pack years
-duration = df['smoking_end-age'].fillna(
-    df['age']) - df['smoking_start-age']
+duration = df['smoking_end-age'].fillna(df['age']) - df['smoking_start-age']
 mask = df['smoking_start-age'].notna() & df['smoking_duration'].isna()
 df.loc[mask, 'smoking_duration'] = duration[mask]
 

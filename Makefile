@@ -64,13 +64,13 @@ run_study: data_describe data_visualise data_analyse data_model
 data_describe: ; ./src/analyse.py $(BP_FINAL) $(PARAMS) $(REPORTS) $(HEALTHY_FLAG) $(NORMALISE_FLAG) --to_run descriptive --group_by $(GROUP_BY)
 
 ## Create Figures
-data_visualise: ; ./src/analyse.py $(BP_FINAL) $(PARAMS) $(REPORTS) $(HEALTHY_FLAG) $(NORMALISE_FLAG) --to_run visualisation
+data_visualise: ; ./src/analyse.py $(BP_FINAL) $(PARAMS) $(REPORTS) $(HEALTHY_FLAG) $(NORMALISE_FLAG) --to_run visualisation --group_by $(GROUP_BY)
 
 ## Run the comparative analysis
-data_analyse: ; ./src/analyse.py $(BP_FINAL) $(PARAMS) $(REPORTS) $(HEALTHY_FLAG) $(NORMALISE_FLAG) --to_run comparative
+data_analyse: ; ./src/analyse.py $(BP_FINAL) $(PARAMS) $(REPORTS) $(HEALTHY_FLAG) $(NORMALISE_FLAG) --to_run comparative --group_by $(GROUP_BY)
 
 ## Build and evaluate models
-data_model: ; ./src/analyse.py $(BP_FINAL) $(PARAMS) $(REPORTS) $(HEALTHY_FLAG) $(NORMALISE_FLAG) --to_run regression clustering
+data_model: ; ./src/analyse.py $(BP_FINAL) $(PARAMS) $(REPORTS) $(HEALTHY_FLAG) $(NORMALISE_FLAG) --to_run regression clustering --group_by $(GROUP_BY)
 
 ## Test the variables for normality
 test_norm: ; $(MAKE) -f ./src/features/test_norm.mk -C $(PROJECT_DIR)
