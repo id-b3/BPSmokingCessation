@@ -11,7 +11,7 @@ def fit_analyse(data, bps, out_path, normalised, logger):
     for param in bps:
         # Extract independent variables
         independent_vars = [
-            "gender",
+            "sex",
             "age_at_scan",
             "length_at_scan",
             "weight_at_scan",

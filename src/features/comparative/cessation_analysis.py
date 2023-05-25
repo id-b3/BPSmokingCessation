@@ -50,7 +50,7 @@ for param in params:
     data_param = data.dropna(
         subset=[param, 'years_since_quit', 'pack_year_categories'])
 
-    independent_vars = ['gender', 'age_at_scan', 'bmi', 'pack_year_categories', 'years_since_quit']
+    independent_vars = ['sex', 'age_at_scan', 'bmi', 'pack_year_categories', 'years_since_quit']
 
     formula = f"{param} ~ {' + '.join(independent_vars)}"
     model = sm.formula.ols(formula=formula, data=data_param).fit()
@@ -58,7 +58,7 @@ for param in params:
         f.write(model.summary().as_text())
 
     # X = data_param[['years_since_quit', 'age_at_scan']].values
-    # X = np.concatenate((pd.get_dummies(data_param.gender).values, X, pd.get_dummies(data_param.pack_year_categories).values), axis=1)
+    # X = np.concatenate((pd.get_dummies(data_param.sex).values, X, pd.get_dummies(data_param.pack_year_categories).values), axis=1)
     # y = data_param[[param]].values
     # pearson, _ = pearsonr(X.T[0], y.T[0])
     rsquared = model.rsquared
@@ -76,7 +76,7 @@ for param in params:
     fig, ax = plt.subplots(figsize=(12, 6))
 
     x_values = np.linspace(data["years_since_quit"].min(), data["years_since_quit"].max(), 100)
-    y_values = model.params['Intercept'] + model.params['gender[T.Male]'] + (60 * model.params['age_at_scan']) + (24 * model.params['bmi']) + model.params['years_since_quit'] * x_values
+    y_values = model.params['Intercept'] + model.params['sex[T.Male]'] + (60 * model.params['age_at_scan']) + (24 * model.params['bmi']) + model.params['years_since_quit'] * x_values
 
     ax.plot(x_values, y_values, color='red')
     # sns.regplot(x=data_param['years_since_quit'],

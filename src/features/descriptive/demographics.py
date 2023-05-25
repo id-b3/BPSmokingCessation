@@ -11,8 +11,8 @@ def calc_demographics(data, params, out_dir, split_by):
 
     # Define the descriptive stats function
     def descriptive_stats(data, group, result_dict):
-        male_dataframe = data[(data['gender'] == 'Male')]
-        female_dataframe = data[(data['gender'] == 'Female')]
+        male_dataframe = data[(data['sex'] == 'Male')]
+        female_dataframe = data[(data['sex'] == 'Female')]
         male_count = len(male_dataframe)
         female_count = len(female_dataframe)
 

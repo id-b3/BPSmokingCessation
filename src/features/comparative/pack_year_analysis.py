@@ -25,18 +25,18 @@ for age in age_cutoff:
     for py in pack_year_groups:
         report_path = age_path / f"pack_year_summary_{py}.txt"
 
-        # Calc the mean and range in pack years per gender, split by smoking status
+        # Calc the mean and range in pack years per sex, split by smoking status
         ex_smokers = age_group[age_group['ex_smoker'] == 1]
         current_smokers = age_group[age_group['current_smoker'] == 1]
 
-        range_pack_years_ex = ex_smokers.groupby('gender')['pack_years'].agg(
+        range_pack_years_ex = ex_smokers.groupby('sex')['pack_years'].agg(
             ['count', 'mean', 'std', 'min', 'max'])
         range_pack_years_ex = range_pack_years_ex.round(2)
         range_pack_years_current = current_smokers.groupby(
-            'gender')['pack_years'].agg(['count', 'mean', 'std', 'min', 'max'])
+            'sex')['pack_years'].agg(['count', 'mean', 'std', 'min', 'max'])
         range_pack_years_current = range_pack_years_current.round(2)
-        current_pack_grt_py = current_smokers[current_smokers['pack_years'] >= py].groupby('gender').size()
-        current_pack_grt_py_perc = current_smokers[current_smokers['pack_years'] >= py].groupby('gender').size() / current_smokers.groupby('gender').size() * 100
+        current_pack_grt_py = current_smokers[current_smokers['pack_years'] >= py].groupby('sex').size()
+        current_pack_grt_py_perc = current_smokers[current_smokers['pack_years'] >= py].groupby('sex').size() / current_smokers.groupby('sex').size() * 100
         current_smokers_py_or_more_report = pd.concat([
             current_pack_grt_py, current_pack_grt_py_perc
         ],
@@ -63,19 +63,19 @@ for age in age_cutoff:
 
         # Calculate the pack years for each subgroup of past smokers
         pack_years_subgroup = ex_smokers.groupby([
-            'gender', 'years_quit'
+            'sex', 'years_quit'
         ])['pack_years'].agg(['count', 'mean', 'std', 'min', 'max'])
         pack_years_subgroup = pack_years_subgroup.round(2)
 
         # Determine number of past smokers in each subgroup with >x pack years
         past_smokers_py_or_more = ex_smokers[
-            ex_smokers['pack_years'] >= py].groupby(['gender',
+            ex_smokers['pack_years'] >= py].groupby(['sex',
                                                      'years_quit']).size()
         past_smokers_py_or_more = ex_smokers[
-            ex_smokers['pack_years'] >= py].groupby(['gender', 'years_quit'])
+            ex_smokers['pack_years'] >= py].groupby(['sex', 'years_quit'])
         past_smokers_py_or_more_count = past_smokers_py_or_more.size()
         past_smokers_py_or_more_percentage = past_smokers_py_or_more_count / ex_smokers.groupby(
-            ['gender', 'years_quit']).size() * 100
+            ['sex', 'years_quit']).size() * 100
 
         # Concatenate count and percentage series horizontally
         past_smokers_py_or_more_report = pd.concat([
@@ -92,17 +92,17 @@ for age in age_cutoff:
                 2)
 
         # Conduct t-tests between male and female groups for ex-smokers
-        ex_smokers_males = ex_smokers[ex_smokers['gender'] ==
+        ex_smokers_males = ex_smokers[ex_smokers['sex'] ==
                                       'Male']['pack_years']
-        ex_smokers_females = ex_smokers[ex_smokers['gender'] ==
+        ex_smokers_females = ex_smokers[ex_smokers['sex'] ==
                                         'Female']['pack_years']
         ttest_result_ex = stats.ttest_ind(ex_smokers_males,
                                           ex_smokers_females,
                                           equal_var=False)
         # Conduct t-tests between male and female groups for current smokers
-        current_smokers_males = current_smokers[current_smokers['gender'] ==
+        current_smokers_males = current_smokers[current_smokers['sex'] ==
                                                 'Male']['pack_years']
-        current_smokers_females = current_smokers[current_smokers['gender'] ==
+        current_smokers_females = current_smokers[current_smokers['sex'] ==
                                                   'Female']['pack_years']
         ttest_result_current = stats.ttest_ind(current_smokers_males,
                                                current_smokers_females,

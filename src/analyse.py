@@ -93,7 +93,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Analyse Bronchial Parameters.")
     parser.add_argument("in_file", type=str, help="Input database csv.")
     parser.add_argument("param_list",
                         type=str,

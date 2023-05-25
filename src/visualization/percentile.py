@@ -48,10 +48,10 @@ def make_plots(data, bps, out_path):
     sns.set_theme(style="whitegrid")
 
     for param in bps:
-        for gender in ["Male", "Female"]:
+        for sex in ["Male", "Female"]:
             for sm_stat in ["never_smoker", "ex_smoker", "current_smoker"]:
                 percentiles = (data[(data["smoking_status"] == sm_stat)
-                                    & (data["gender"] == gender)].groupby(
+                                    & (data["sex"] == sex)].groupby(
                                         "age_2yr")[param].quantile(
                                             [0.1, 0.3, 0.5, 0.7,
                                              0.9]).reset_index())
@@ -89,9 +89,9 @@ def make_plots(data, bps, out_path):
                 # Additional customization of the x-axis
                 plt.xlabel("Age")
                 plt.ylabel(param.replace("bp_", ""))
-                plt.title(f"{gender.title()} {sm_stat}")
+                plt.title(f"{sex.title()} {sm_stat}")
                 plt.tight_layout()
 
-                fig.savefig(f"{str(out_path / param)}_{gender}_{sm_stat}.png",
+                fig.savefig(f"{str(out_path / param)}_{sex}_{sm_stat}.png",
                             dpi=300)
                 plt.close()

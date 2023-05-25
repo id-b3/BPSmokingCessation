@@ -9,10 +9,10 @@ df = pd.read_csv(sys.stdin, index_col=0)
 outpath = Path("./data/interim/")
 
 # ------ PARTICIPANT CHARACTERISTICS
-# Fill in missing gender values, drop the other columns
-df['gender'].fillna(df['gender_first'].fillna(df['gender_first2']),
+# Fill in missing sex values, drop the other columns
+df['sex'].fillna(df['gender_first'].fillna(df['gender_first2']),
                     inplace=True)
-df['gender'] = df['gender'].str.title()
+df['sex'] = df['sex'].str.title()
 df['age_at_scan'].replace('#NUM!', np.nan, inplace=True)
 df['age_at_scan'].fillna(df['age'], inplace=True)
 df['age_at_scan'] = df['age_at_scan'].astype(float)

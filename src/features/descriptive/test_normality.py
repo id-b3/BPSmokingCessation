@@ -16,17 +16,17 @@ df = pd.read_csv(sys.stdin)
 df_healthy = get_healthy(df)
 df_unhealthy = df[(df.GOLD_stage != "0") & (df.copd_diagnosis == 1) &
                   (df.asthma_diagnosis == 1)]
-df_male_h = df_healthy[df_healthy.gender == "Male"]
-df_female_h = df_healthy[df_healthy.gender == "Female"]
-df_male_u = df_unhealthy[df_unhealthy.gender == "Male"]
-df_female_u = df_unhealthy[df_unhealthy.gender == "Female"]
+df_male_h = df_healthy[df_healthy.sex == "Male"]
+df_female_h = df_healthy[df_healthy.sex == "Female"]
+df_male_u = df_unhealthy[df_unhealthy.sex == "Male"]
+df_female_u = df_unhealthy[df_unhealthy.sex == "Female"]
 
 
 def run_test(data, male: bool = True, healthy: bool = True):
-    gender_title = "Male" if male else "Female"
+    sex_title = "Male" if male else "Female"
     health_title = "Healthy" if healthy else "Non-Healthy"
     var_name = data.columns[0].replace("_", " ").title()
-    var_name += f" {health_title} {gender_title}"
+    var_name += f" {health_title} {sex_title}"
     logging.info(f"Testing normality for {var_name}")
 
     fig, axs = plt.subplots(2, 2, figsize=(12, 8))

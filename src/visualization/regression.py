@@ -20,7 +20,7 @@ def make_plots(data: pd.DataFrame, bps: list, out_path: Path):
 
     Args:
         data (pd.DataFrame): A pandas dataframe with columns for age_at_scan, length_at_scan, weight_at_scan, bmi, bp,
-        smoking_status, and gender.
+        smoking_status, and sex.
         bps (list): A list of strings containing the names of the bronchial parameters columns to be plotted.
         out_path (Path): A Path object pointing to the directory where the output plots will be saved.
 
@@ -42,7 +42,7 @@ def make_plots(data: pd.DataFrame, bps: list, out_path: Path):
     for param in bps:
 
         for var in ["age_at_scan", "length_at_scan", "weight_at_scan", "bmi"]:
-            data_reg = data[[var, param, "smoking_status", "gender"]].dropna()
+            data_reg = data[[var, param, "smoking_status", "sex"]].dropna()
             r, p = stats.pearsonr(data_reg[var], data_reg[param])
 
             fig = sns.lmplot(
@@ -66,7 +66,7 @@ def make_plots(data: pd.DataFrame, bps: list, out_path: Path):
                 data=data_reg,
                 x=var,
                 y=param,
-                hue="gender",
+                hue="sex",
                 palette=sns.color_palette([
                     "salmon", "lightblue"
                 ]),
@@ -78,6 +78,6 @@ def make_plots(data: pd.DataFrame, bps: list, out_path: Path):
             fig2.set(ylim=(0, 1))
             prettify_axes(fig2)
             fig2.fig.savefig(
-                f"{str(out_path / param)}_{var}_gender_regression.png",
+                f"{str(out_path / param)}_{var}_sex_regression.png",
                 dpi=300)
             plt.close()

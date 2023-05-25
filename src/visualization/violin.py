@@ -15,7 +15,7 @@ def make_plots(data, bps, out_path):
         fig = sns.violinplot(data=data,
                              x="smoking_status",
                              y=param,
-                             hue="gender",
+                             hue="sex",
                              split=True,
                              inner="quart",
                              linewidth=1.5,

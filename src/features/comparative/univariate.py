@@ -31,15 +31,15 @@ if args.healthy:
 params = args.parameters.split(",")
 results = []
 
-for gender in ["Male", "Female"]:
-    gender_df = df[df['gender'] == gender]
+for sex in ["Male", "Female"]:
+    sex_df = df[df['sex'] == sex]
 
     # Loop parameters and calculate Pearson's cc and R-squared
     for param in params:
         for group in df["smoking_status"].unique():
-            df_param = gender_df.dropna(subset=[param, args.ind_var])
+            df_param = sex_df.dropna(subset=[param, args.ind_var])
             df_param = df_param[df_param.smoking_status == group]
-            print(f"Calculating {param} wrt {args.ind_var} for {gender} {group}")
+            print(f"Calculating {param} wrt {args.ind_var} for {sex} {group}")
             X = df_param[[args.ind_var]].values
             y = df_param[[param]].values
             pearson, _ = pearsonr(X.T[0], y.T[0])
@@ -49,7 +49,7 @@ for gender in ["Male", "Female"]:
 
             # Create a dictionary to store results
             result = {
-                'Group': f"{gender}_{group}",
+                'Group': f"{sex}_{group}",
                 'Parameter': param,
                 'Pearson Correlation': pearson,
                 'R-squared': rsquared,

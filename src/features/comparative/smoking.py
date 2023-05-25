@@ -30,14 +30,14 @@ def compare(data, parameters, out_path):
     # Initialize results table
     results = []
 
-    # Perform tests for each gender and parameter
-    for gender in ["Male", "Female"]:
-        gender_df = data[data["gender"] == gender]
+    # Perform tests for each sex and parameter
+    for sex in ["Male", "Female"]:
+        sex_df = data[data["sex"] == sex]
         for param in parameters:
-            param_df = gender_df.dropna(subset=[param])
+            param_df = sex_df.dropna(subset=[param])
             significant, anova, tukey = _perform_anova_and_tukey(param_df, param)
             result = {
-                "gender": gender,
+                "sex": sex,
                 "parameter": param,
                 "anova_f": anova.statistic,
                 "anova_p": anova.pvalue,
@@ -57,4 +57,4 @@ def compare(data, parameters, out_path):
     # Convert results to DataFrame and save as CSV
     results_df = pd.DataFrame(results)
     results_df = results_df.round(4)
-    results_df.to_csv((out_path / "gender_differences.csv"), index=False)
+    results_df.to_csv((out_path / "sex_differences.csv"), index=False)

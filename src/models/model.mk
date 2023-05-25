@@ -10,7 +10,7 @@ ifeq ($(STUDY_HEALTHY),true)
 	H_FLAG = --healthy
 endif
 
-all: $(GENDER) MLR
+all: $(SEX) MLR
 
 MLR: $(BP_FINAL)
 	mkdir -p $(REPPATH)
