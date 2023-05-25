@@ -36,7 +36,7 @@ params = args.parameters.split(",")
 # Create empty lists to store results
 results = []
 
-data['years_since_quit'] = data['age_at_scan'] - data['smoking_end-age']
+data['years_since_quit'] = data['age'] - data['smoking_end-age']
 data['years_quit'] = pd.cut(data['years_since_quit'], [0, 5, 10, 15, 20, 100],
                             right=False,
                             labels=[
@@ -50,14 +50,14 @@ for param in params:
     data_param = data.dropna(
         subset=[param, 'years_since_quit', 'pack_year_categories'])
 
-    independent_vars = ['sex', 'age_at_scan', 'bmi', 'pack_year_categories', 'years_since_quit']
+    independent_vars = ['sex', 'age', 'bmi', 'pack_year_categories', 'years_since_quit']
 
     formula = f"{param} ~ {' + '.join(independent_vars)}"
     model = sm.formula.ols(formula=formula, data=data_param).fit()
     with open(str(Path(args.output).parent / f"cessation_{param}.txt"), "w") as f:
         f.write(model.summary().as_text())
 
-    # X = data_param[['years_since_quit', 'age_at_scan']].values
+    # X = data_param[['years_since_quit', 'age']].values
     # X = np.concatenate((pd.get_dummies(data_param.sex).values, X, pd.get_dummies(data_param.pack_year_categories).values), axis=1)
     # y = data_param[[param]].values
     # pearson, _ = pearsonr(X.T[0], y.T[0])
@@ -76,7 +76,7 @@ for param in params:
     fig, ax = plt.subplots(figsize=(12, 6))
 
     x_values = np.linspace(data["years_since_quit"].min(), data["years_since_quit"].max(), 100)
-    y_values = model.params['Intercept'] + model.params['sex[T.Male]'] + (60 * model.params['age_at_scan']) + (24 * model.params['bmi']) + model.params['years_since_quit'] * x_values
+    y_values = model.params['Intercept'] + model.params['sex[T.Male]'] + (60 * model.params['age']) + (24 * model.params['bmi']) + model.params['years_since_quit'] * x_values
 
     ax.plot(x_values, y_values, color='red')
     # sns.regplot(x=data_param['years_since_quit'],

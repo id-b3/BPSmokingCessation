@@ -19,7 +19,7 @@ def make_plots(data: pd.DataFrame, bps: list, out_path: Path):
     output directory.
 
     Args:
-        data (pd.DataFrame): A pandas dataframe with columns for age_at_scan, length_at_scan, weight_at_scan, bmi, bp,
+        data (pd.DataFrame): A pandas dataframe with columns for age, height, weight, bmi, bp,
         smoking_status, and sex.
         bps (list): A list of strings containing the names of the bronchial parameters columns to be plotted.
         out_path (Path): A Path object pointing to the directory where the output plots will be saved.
@@ -37,11 +37,11 @@ def make_plots(data: pd.DataFrame, bps: list, out_path: Path):
     out_path.mkdir(parents=True, exist_ok=True)
 
     data = min_max_scale(
-        data, ["age_at_scan", "length_at_scan", "weight_at_scan", "bmi"] + bps)
+        data, ["age", "height", "weight", "bmi"] + bps)
 
     for param in bps:
 
-        for var in ["age_at_scan", "length_at_scan", "weight_at_scan", "bmi"]:
+        for var in ["age", "height", "weight", "bmi"]:
             data_reg = data[[var, param, "smoking_status", "sex"]].dropna()
             r, p = stats.pearsonr(data_reg[var], data_reg[param])
 

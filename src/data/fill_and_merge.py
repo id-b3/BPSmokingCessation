@@ -10,21 +10,22 @@ outpath = Path("./data/interim/")
 
 # ------ PARTICIPANT CHARACTERISTICS
 # Fill in missing sex values, drop the other columns
+# Height is in meter, weight in kg, age in years. All at scan time.
 df['sex'].fillna(df['gender_first'].fillna(df['gender_first2']),
                     inplace=True)
 df['sex'] = df['sex'].str.title()
-df['age_at_scan'].replace('#NUM!', np.nan, inplace=True)
-df['age_at_scan'].fillna(df['age'], inplace=True)
-df['age_at_scan'] = df['age_at_scan'].astype(float)
-df['weight_at_scan'].fillna(df['bodyweight_kg_all_m_1_max2'].fillna(
+df['age'].replace('#NUM!', np.nan, inplace=True)
+df['age'].fillna(df['age'], inplace=True)
+df['age'] = df['age'].astype(float)
+df['weight'].fillna(df['bodyweight_kg_all_m_1_max2'].fillna(
     df['bodyweight_kg_all_m_1_max'].fillna(df['bodyweight_current_adu_q_1'])),
                             inplace=True)
-df['length_at_scan'].fillna(df['bodylength_cm_all_m_1_max2'], inplace=True)
-df['length_at_scan'].fillna(df['bodylength_cm_all_m_1_max'], inplace=True)
-df['length_at_scan'] = df['length_at_scan']/100
+df['height'].fillna(df['bodylength_cm_all_m_1_max2'], inplace=True)
+df['height'].fillna(df['bodylength_cm_all_m_1_max'], inplace=True)
+df['height'] = df['height']/100
 
 # Calculate BMI
-df['bmi'] = df['weight_at_scan'] / (df['length_at_scan'])**2
+df['bmi'] = df['weight'] / (df['height'])**2
 
 df.drop([
     'gender_first', 'gender_first2', 'bodyweight_kg_all_m_1_max2',
@@ -49,7 +50,7 @@ age_label_5 = [
 age_cut_5 = np.linspace(40, 85, 10)
 age_cut_5 = np.append(age_cut_5, 100)
 
-df['age_5yr'] = pd.cut(df['age_at_scan'],
+df['age_5yr'] = pd.cut(df['age'],
                        bins=age_cut_5,
                        labels=age_label_5,
                        right=False)
@@ -58,7 +59,7 @@ age_label_10 = ['40-50', '50-60', '60-70', '70-80', '80-90', '90+']
 age_cut_10 = np.linspace(40, 90, 6)
 age_cut_10 = np.append(age_cut_10, 100)
 
-df['age_10yr'] = pd.cut(df['age_at_scan'],
+df['age_10yr'] = pd.cut(df['age'],
                         bins=age_cut_10,
                         labels=age_label_10,
                         right=False)
@@ -106,7 +107,7 @@ df['smoking_duration'] = df['smoking_duration_adu_c_22'].fillna(
 
 # Calculate missing pack years
 duration = df['smoking_end-age'].fillna(
-    df['age_at_scan']) - df['smoking_start-age']
+    df['age']) - df['smoking_start-age']
 mask = df['smoking_start-age'].notna() & df['smoking_duration'].isna()
 df.loc[mask, 'smoking_duration'] = duration[mask]
 

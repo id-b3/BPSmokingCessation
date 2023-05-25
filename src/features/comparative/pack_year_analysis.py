@@ -17,8 +17,8 @@ outpath.mkdir(parents=True, exist_ok=True)
 data = data[data.pack_years.notna()]
 
 for age in age_cutoff:
-    age_group = data[(data['age_at_scan'] >= 50)
-                     & (data['age_at_scan'] <= age)]
+    age_group = data[(data['age'] >= 50)
+                     & (data['age'] <= age)]
     age_path = outpath / f"age_50-{age}"
     age_path.mkdir(parents=True, exist_ok=True)
 
@@ -51,7 +51,7 @@ for age in age_cutoff:
 
         # Categorize past smokers based on how long ago they stopped smoking
         ex_smokers['years_since_quit'] = ex_smokers[
-            'age_at_scan'] - ex_smokers['smoking_end-age']
+            'age'] - ex_smokers['smoking_end-age']
         ex_smokers['years_quit'] = pd.cut(ex_smokers['years_since_quit'],
                                           [0, 5, 10, 15, 20, 100],
                                           right=False,

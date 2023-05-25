@@ -25,7 +25,7 @@ def get_healthy(df):
 
 
 def normalise_bps(
-    df: pd.DataFrame, bps: list, norm_to: str = "length_at_scan"
+    df: pd.DataFrame, bps: list, norm_to: str = "height"
 ) -> pd.DataFrame:
     """
     Normalizes the base pairs (bps) data in a pandas dataframe (df) with respect to a specified column (norm_to).
@@ -36,7 +36,7 @@ def normalise_bps(
     bps : list
         A list of column names in the dataframe to be normalized.
     norm_to : str, optional
-        The name of the column to normalize the bps data to. Default is "length_at_scan".
+        The name of the column to normalize the bps data to. Default is "height".
 
     Returns
     -------

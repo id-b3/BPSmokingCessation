@@ -16,7 +16,7 @@ runs = [
 ]
 group_opts = ["age_10yr", "smoking_status"]
 demo_params = [
-    'age_at_scan', 'length_at_scan', 'weight_at_scan', 'bp_tlv', 'pack_years',
+    'age', 'height', 'weight', 'bp_tlv', 'pack_years',
     'fev1', 'fev1_pp', 'fvc', 'fev1_fvc', 'bp_pi10', 'bp_wap_avg', 'bp_la_avg',
     'bp_wt_avg', 'bp_afd', 'bp_tcount', 'bp_airvol'
 ]
@@ -60,11 +60,11 @@ def main(args):
         lambda: (smoking.compare(data.copy(deep=True), bps, out_path)),
         runs[2]:
         lambda: (
-            univariate.fit_analyse(data.copy(deep=True), bps, "length_at_scan",
+            univariate.fit_analyse(data.copy(deep=True), bps, "height",
                                    out_path),
-            univariate.fit_analyse(data.copy(deep=True), bps, "age_at_scan",
+            univariate.fit_analyse(data.copy(deep=True), bps, "age",
                                    out_path),
-            univariate.fit_analyse(data.copy(deep=True), bps, "weight_at_scan",
+            univariate.fit_analyse(data.copy(deep=True), bps, "weight",
                                    out_path),
             univariate.fit_analyse(data.copy(deep=True), bps, "bmi", out_path),
             univariate.fit_analyse(data.copy(deep=True), bps, "pack_years",

@@ -40,7 +40,7 @@ def make_plots(data, bps, out_path):
     age_cut_2 = np.linspace(40, 88, 22)
     age_cut_2 = np.append(age_cut_2, 100)
 
-    data["age_2yr"] = pd.cut(data["age_at_scan"],
+    data["age_2yr"] = pd.cut(data["age"],
                              bins=age_cut_2,
                              labels=age_label_2,
                              right=False)

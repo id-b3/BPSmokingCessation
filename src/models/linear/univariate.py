@@ -26,7 +26,7 @@ def fit_analyse(data: pd.DataFrame, bps: list, i_var: str, out_path: Path):
 
     results = []
 
-    data = min_max_scale(data, ["age_at_scan","length_at_scan","weight_at_scan","bmi"] + bps)
+    data = min_max_scale(data, ["age","height","weight","bmi"] + bps)
 
     for sex in ["Male", "Female"]:
         sex_data = data[data["sex"] == sex].copy()

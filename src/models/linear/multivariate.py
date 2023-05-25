@@ -12,9 +12,9 @@ def fit_analyse(data, bps, out_path, normalised, logger):
         # Extract independent variables
         independent_vars = [
             "sex",
-            "age_at_scan",
-            "length_at_scan",
-            "weight_at_scan",
+            "age",
+            "height",
+            "weight",
             "current_smoker",
             "pack_year_categories",
         ]
