@@ -1,6 +1,8 @@
+import logging
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+logger = logging.getLogger("BronchialParameters")
 
 def prettify_axes(fig):
     def _prettify_label(label):

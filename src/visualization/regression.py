@@ -75,7 +75,7 @@ def make_plots(data: pd.DataFrame,
                 hue="sex",
                 palette=sns.color_palette(["salmon", "lightblue"]),
                 truncate=False,
-                scatter=True,
+                scatter=debug,
                 scatter_kws={"alpha": 0.3},
             )
             sns.despine(left=True)

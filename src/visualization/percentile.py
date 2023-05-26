@@ -37,8 +37,9 @@ def make_plots(data, bps, out_path):
         78,
         80,
         82,
+        84,
     ]
-    age_cut_2 = np.linspace(40, 88, 22)
+    age_cut_2 = np.linspace(40, 88, 23)
     age_cut_2 = np.append(age_cut_2, 100)
 
     data["age_2yr"] = pd.cut(data["age"],
@@ -50,10 +51,11 @@ def make_plots(data, bps, out_path):
 
     for param in tqdm(bps):
         for sex in ["Male", "Female"]:
+            ylims = [data[data.sex == sex][param].quantile(0.025), data[data.sex == sex][param].quantile(0.975)]
             for sm_stat in ["never_smoker", "ex_smoker", "current_smoker"]:
                 percentiles = (data[(data["smoking_status"] == sm_stat)
                                     & (data["sex"] == sex)].groupby(
-                                        "age_5yr")[param].quantile(
+                                        "age_2yr")[param].quantile(
                                             [0.1, 0.3, 0.5, 0.7,
                                              0.9]).reset_index())
                 percentiles = percentiles.rename(
@@ -88,9 +90,9 @@ def make_plots(data, bps, out_path):
                                 frameon=False)
 
                 # Additional customization of the x-axis
+                fig.set(ylim=ylims, xlim=[45, 85])
                 plt.xlabel("Age")
-                plt.ylabel(param.replace("bp_", ""))
-                plt.title(f"{sex.title()} {sm_stat}")
+                plt.title(f"{sex.title()} {sm_stat.replace('_', ' ').title()}")
                 plt.tight_layout()
 
                 fig.savefig(f"{str(out_path / param)}_{sex}_{sm_stat}.png",
