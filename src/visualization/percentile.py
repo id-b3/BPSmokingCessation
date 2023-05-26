@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 from .prettifiers import prettify_axes
 
@@ -47,12 +48,12 @@ def make_plots(data, bps, out_path):
 
     sns.set_theme(style="whitegrid")
 
-    for param in bps:
+    for param in tqdm(bps):
         for sex in ["Male", "Female"]:
             for sm_stat in ["never_smoker", "ex_smoker", "current_smoker"]:
                 percentiles = (data[(data["smoking_status"] == sm_stat)
                                     & (data["sex"] == sex)].groupby(
-                                        "age_2yr")[param].quantile(
+                                        "age_5yr")[param].quantile(
                                             [0.1, 0.3, 0.5, 0.7,
                                              0.9]).reset_index())
                 percentiles = percentiles.rename(

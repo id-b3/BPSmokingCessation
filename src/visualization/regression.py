@@ -6,6 +6,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import scipy.stats as stats
+from tqdm import tqdm
 
 from data.util.dataframe import min_max_scale
 from .prettifiers import prettify_axes
@@ -43,7 +44,7 @@ def make_plots(data: pd.DataFrame,
     if min_max_params:
         data = min_max_scale(data, ["age", "height", "weight", "bmi"] + bps)
 
-    for param in bps:
+    for param in tqdm(bps):
 
         for var in ["age", "height", "weight", "bmi"]:
             data_reg = data[[var, param, "smoking_status", "sex"]].dropna()

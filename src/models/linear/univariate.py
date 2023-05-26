@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
+import logging
 from pathlib import Path
 import pandas as pd
 from scipy.stats import pearsonr
 import statsmodels.api as sm
 from data.util.dataframe import min_max_scale
 
+
+logger = logging.getLogger("BronchialParameters")
 
 def fit_analyse(data: pd.DataFrame,
                 bps: list,
@@ -41,7 +44,7 @@ def fit_analyse(data: pd.DataFrame,
             for group in sex_data["smoking_status"].unique():
                 data_param = sex_data.dropna(subset=[param, i_var])
                 data_param = data_param[data_param.smoking_status == group]
-                print(f"Calculating {param} wrt {i_var} for {sex} {group}")
+                logger.debug(f"Calculating {param} wrt {i_var} for {sex} {group}")
                 X = data_param[i_var].to_numpy()
                 y = data_param[param].to_numpy()
                 pearson, _ = pearsonr(X, y)
