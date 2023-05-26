@@ -11,7 +11,7 @@ from data.util.dataframe import min_max_scale
 from .prettifiers import prettify_axes
 
 logger = logging.getLogger("BronchialParameters")
-
+debug = (logger.level == logging.DEBUG)
 
 def make_plots(data: pd.DataFrame,
                bps: list,
@@ -55,7 +55,7 @@ def make_plots(data: pd.DataFrame,
                 y=param,
                 hue="smoking_status",
                 truncate=False,
-                scatter=True,
+                scatter=debug,
                 scatter_kws={"alpha": 0.3},
             )
             logger.debug("Pearson for {} and {}: {}".format(var, param, r))

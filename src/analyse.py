@@ -6,7 +6,7 @@ import pandas as pd
 from pathlib import Path
 
 from data.util.dataframe import get_healthy, normalise_bps
-from features.descriptive import demographics, flowchart
+from features.descriptive import demographics, flowchart, reference_values
 from features.comparative import smoking
 from models.linear import univariate, multivariate
 from visualization import violin, regression, percentile
@@ -14,7 +14,7 @@ from visualization import violin, regression, percentile
 runs = [
     "descriptive", "comparative", "regression", "clustering", "visualisation"
 ]
-group_opts = ["age_10yr", "smoking_status"]
+group_opts = ["age_5yr", "age_10yr", "smoking_status"]
 demo_params = [
     'age', 'height', 'weight', 'bp_tlv', 'pack_years',
     'fev1', 'fev1_pp', 'fvc', 'fev1_fvc', 'bp_pi10', 'bp_wap_avg', 'bp_la_avg',
@@ -57,6 +57,8 @@ def main(args):
             demographics.calc_demographics(data.copy(deep=True), demo_params, out_path,
                                            args.group_by),
             flowchart.make_chart(data_all.copy(deep=True), out_path),
+            reference_values.create_table(data.copy(deep=True), bps, out_path, args.group_by),
+
         ),
         runs[1]:
         lambda: (smoking.compare(data.copy(deep=True), bps, out_path)),
