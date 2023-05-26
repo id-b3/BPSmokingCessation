@@ -7,7 +7,11 @@ import statsmodels.api as sm
 from data.util.dataframe import min_max_scale
 
 
-def fit_analyse(data: pd.DataFrame, bps: list, i_var: str, out_path: Path):
+def fit_analyse(data: pd.DataFrame,
+                bps: list,
+                i_var: str,
+                out_path: Path,
+                min_max_params: bool = False):
     """
     This function performs univariate analysis on a given data frame.
 
@@ -26,7 +30,8 @@ def fit_analyse(data: pd.DataFrame, bps: list, i_var: str, out_path: Path):
 
     results = []
 
-    data = min_max_scale(data, ["age","height","weight","bmi"] + bps)
+    if min_max_params:
+        data = min_max_scale(data, ["age", "height", "weight", "bmi"] + bps)
 
     for sex in ["Male", "Female"]:
         sex_data = data[data["sex"] == sex].copy()
@@ -59,4 +64,5 @@ def fit_analyse(data: pd.DataFrame, bps: list, i_var: str, out_path: Path):
     results_df = results_df.round(2)
 
     # Output results to a CSV file
-    results_df.to_csv((out_path / f"univariate_analysis_wrt_{i_var}.csv"), index=False)
+    results_df.to_csv((out_path / f"univariate_analysis_wrt_{i_var}.csv"),
+                      index=False)

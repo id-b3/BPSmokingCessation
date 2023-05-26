@@ -23,7 +23,7 @@ BP_DISEASED:=$(DPRC)diseased_bp_db.csv
 
 # Study target
 STUDY_HEALTHY ?= true
-NORMALISE_DATA ?= true
+NORMALISE_DATA ?= false
 GROUP_BY ?= "smoking_status"
 
 # Params to analyse

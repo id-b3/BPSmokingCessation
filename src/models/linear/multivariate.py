@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
+import logging
 import statsmodels.api as sm
 
+logger = logging.getLogger("BronchialParameters")
 
-def fit_analyse(data, bps, out_path, normalised, logger):
+
+def fit_analyse(data, bps, out_path, min_max_params=False):
     data["pack_year_categories"] = data["pack_year_categories"].replace(
         "0", "0 pack-years"
     )
@@ -20,7 +23,7 @@ def fit_analyse(data, bps, out_path, normalised, logger):
         ]
 
         # Normalising the data
-        if normalised:
+        if min_max_params:
             for var in independent_vars:
                 if data[var].dtype == int or data[var].dtype == float:
                     data[var] = (data[var] - data[var].min()) / (

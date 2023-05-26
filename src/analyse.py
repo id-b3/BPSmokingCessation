@@ -20,6 +20,8 @@ demo_params = [
     'fev1', 'fev1_pp', 'fvc', 'fev1_fvc', 'bp_pi10', 'bp_wap_avg', 'bp_la_avg',
     'bp_wt_avg', 'bp_afd', 'bp_tcount', 'bp_airvol'
 ]
+# Whether to scale all parameters to [0, 1] before plotting/regression
+min_max_params = False
 
 src_dir = Path(__file__).resolve().parent
 logging.config.fileConfig(src_dir / "logging.conf")
@@ -61,18 +63,16 @@ def main(args):
         runs[2]:
         lambda: (
             univariate.fit_analyse(data.copy(deep=True), bps, "height",
-                                   out_path),
+                                   out_path, min_max_params),
             univariate.fit_analyse(data.copy(deep=True), bps, "age",
-                                   out_path),
+                                   out_path, min_max_params),
             univariate.fit_analyse(data.copy(deep=True), bps, "weight",
-                                   out_path),
-            univariate.fit_analyse(data.copy(deep=True), bps, "bmi", out_path),
+                                   out_path, min_max_params),
+            univariate.fit_analyse(data.copy(deep=True), bps, "bmi", out_path, min_max_params),
             univariate.fit_analyse(data.copy(deep=True), bps, "pack_years",
-                                   out_path),
+                                   out_path, min_max_params),
             multivariate.fit_analyse(data.copy(deep=True), bps, out_path,
-                                     False, logger),
-            multivariate.fit_analyse(data.copy(deep=True), bps, out_path, True,
-                                     logger),
+                                     min_max_params),
         ),
         runs[3]:
         lambda: (),
@@ -80,7 +80,7 @@ def main(args):
         lambda: (
             percentile.make_plots(data.copy(deep=True), bps, out_path),
             violin.make_plots(data.copy(deep=True), bps, out_path),
-            regression.make_plots(data.copy(deep=True), bps, out_path),
+            regression.make_plots(data.copy(deep=True), bps, out_path, min_max_params),
         ),
     }
 

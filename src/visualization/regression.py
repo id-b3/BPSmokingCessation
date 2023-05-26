@@ -12,7 +12,11 @@ from .prettifiers import prettify_axes
 
 logger = logging.getLogger("BronchialParameters")
 
-def make_plots(data: pd.DataFrame, bps: list, out_path: Path):
+
+def make_plots(data: pd.DataFrame,
+               bps: list,
+               out_path: Path,
+               min_max_params: bool = False):
     """
     Creates scatter plots with linear regression fits to visualize the relationship between bronchial parameters (bp) and
     various demographic and anthropometric factors such as age, length, weight, and bmi. The plots are saved in a given
@@ -36,8 +40,8 @@ def make_plots(data: pd.DataFrame, bps: list, out_path: Path):
     out_path = out_path / "regression"
     out_path.mkdir(parents=True, exist_ok=True)
 
-    data = min_max_scale(
-        data, ["age", "height", "weight", "bmi"] + bps)
+    if min_max_params:
+        data = min_max_scale(data, ["age", "height", "weight", "bmi"] + bps)
 
     for param in bps:
 
@@ -56,7 +60,8 @@ def make_plots(data: pd.DataFrame, bps: list, out_path: Path):
             )
             logger.debug("Pearson for {} and {}: {}".format(var, param, r))
             sns.despine(left=True)
-            fig.set(ylim=(0, 1))
+            if min_max_params:
+                fig.set(ylim=(0, 1))
             prettify_axes(fig)
             fig.fig.savefig(f"{str(out_path / param)}_{var}_regression.png",
                             dpi=300)
@@ -67,17 +72,15 @@ def make_plots(data: pd.DataFrame, bps: list, out_path: Path):
                 x=var,
                 y=param,
                 hue="sex",
-                palette=sns.color_palette([
-                    "salmon", "lightblue"
-                ]),
+                palette=sns.color_palette(["salmon", "lightblue"]),
                 truncate=False,
                 scatter=True,
                 scatter_kws={"alpha": 0.3},
             )
             sns.despine(left=True)
-            fig2.set(ylim=(0, 1))
+            if min_max_params:
+                fig2.set(ylim=(0, 1))
             prettify_axes(fig2)
             fig2.fig.savefig(
-                f"{str(out_path / param)}_{var}_sex_regression.png",
-                dpi=300)
+                f"{str(out_path / param)}_{var}_sex_regression.png", dpi=300)
             plt.close()
