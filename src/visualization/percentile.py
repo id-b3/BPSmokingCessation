@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import logging
+
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -8,10 +10,14 @@ from tqdm import tqdm
 
 from .prettifiers import prettify_axes
 
+logger = logging.getLogger("BronchialParameters")
 
 def make_plots(data, bps, out_path):
     out_path = out_path / "percentile"
     out_path.mkdir(parents=True, exist_ok=True)
+
+    logger.info("Creating percentile plots")
+    logger.info(f"Output directory: {out_path}")
 
     # Create age categories
     age_label_2 = [

@@ -97,12 +97,13 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Analyse Bronchial Parameters.")
     parser.add_argument("in_file", type=str, help="Input database csv.")
-    parser.add_argument("param_list",
-                        type=str,
-                        help="Comma separated list of params to process.")
     parser.add_argument("out_directory",
                         type=str,
                         help="Output report destination.")
+    parser.add_argument("--param_list",
+                        type=str,
+                        default='bp_pi10,bp_wt_avg,bp_la_avg,bp_wap_avg',
+                        help="Comma separated list of params to process.")
     parser.add_argument(
         "--to_run",
         default=["descriptive"],
