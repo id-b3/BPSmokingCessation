@@ -100,7 +100,6 @@ def make_plots(data, bps, out_path):
                 plt.xlabel("Age")
                 plt.title(f"{sex.title()} {sm_stat.replace('_', ' ').title()}")
                 plt.tight_layout()
-
                 fig.savefig(f"{str(out_path / param)}_{sex}_{sm_stat}.png",
                             dpi=300)
                 plt.close()
