@@ -56,15 +56,19 @@ def fit_analyse(data: pd.DataFrame,
                 result = {
                     "Group": f"{sex}_{group}",
                     "Parameter": param,
-                    "Pearson Correlation": pearson,
-                    "R-squared": rsquared,
-                    "P-value": pval,
+                    "Pearson Correlation": pearson.round(2),
+                    "Intercept": model.params[0].round(2),
+                    "Slope": model.params[1].round(4),
+                    "R-squared": rsquared.round(2),
+                    "F-statistic": model.fvalue.round(2),
+                    "F p-value": model.f_pvalue.round(4),
+                    "P-value": pval.round(2),
                 }
                 results.append(result)
 
     # Create a pandas DataFrame from the results dictionary
     results_df = pd.DataFrame.from_dict(results)
-    results_df = results_df.round(2)
+    results_df = results_df
 
     # Output results to a CSV file
     results_df.to_csv((out_path / f"univariate_analysis_wrt_{i_var}.csv"),
