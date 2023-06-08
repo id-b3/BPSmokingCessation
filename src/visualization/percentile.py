@@ -55,13 +55,16 @@ def make_plots(data, bps, out_path):
 
     sns.set_theme(style="whitegrid")
 
+    age_dict = {"45-50": 47.5, "50-55": 52.5, "55-60": 57.5, "60-65": 62.5, "65-70": 67.5, "70-75": 72.5, "75-80": 77.5, "80+": 85}
+    data.replace({"age_5yr": age_dict}, inplace=True)
+
     for param in tqdm(bps):
         for sex in ["Male", "Female"]:
             ylims = [data[data.sex == sex][param].quantile(0.025), data[data.sex == sex][param].quantile(0.975)]
             for sm_stat in ["never_smoker", "ex_smoker", "current_smoker"]:
                 percentiles = (data[(data["smoking_status"] == sm_stat)
                                     & (data["sex"] == sex)].groupby(
-                                        "age_2yr")[param].quantile(
+                                        "age_5yr")[param].quantile(
                                             [0.1, 0.3, 0.5, 0.7,
                                              0.9]).reset_index())
                 percentiles = percentiles.rename(
@@ -71,7 +74,7 @@ def make_plots(data, bps, out_path):
 
                 fig = sns.lmplot(
                     data=percentiles,
-                    x="age_2yr",
+                    x="age_5yr",
                     y=param,
                     hue="Percentile",
                     scatter=False,
