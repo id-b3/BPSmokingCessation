@@ -7,7 +7,7 @@ from pathlib import Path
 
 from data.util.dataframe import get_group, normalise_bps
 from features.descriptive import demographics, flowchart, reference_values
-from features.comparative import smoking
+from features.comparative import smoking, cessation
 from models.linear import univariate, multivariate
 from visualization import violin, regression, percentile
 
@@ -16,9 +16,9 @@ runs = [
 ]
 group_opts = ["age_5yr", "age_10yr", "smoking_status"]
 demo_params = [
-    'age', 'height', 'weight', 'bp_tlv', 'pack_years',
-    'fev1', 'fev1_pp', 'fvc', 'fev1_fvc', 'bp_pi10', 'bp_wap_avg', 'bp_la_avg',
-    'bp_wt_avg', 'bp_afd', 'bp_tcount', 'bp_airvol'
+    'age', 'height', 'weight', 'bp_tlv', 'pack_years', 'fev1', 'fev1_pp',
+    'fvc', 'fev1_fvc', 'bp_pi10', 'bp_wap_avg', 'bp_la_avg', 'bp_wt_avg',
+    'bp_afd', 'bp_tcount', 'bp_airvol'
 ]
 # Whether to scale all parameters to [0, 1] before plotting/regression
 min_max_params = False
@@ -36,12 +36,15 @@ def main(args):
     # Only use healthy participants if specified
     if args.health_stat == "healthy":
         data = get_group(data_all, "healthy")
+        data = data[data["smoking_status"] == "ex_smoker"]
         main_out_dir = main_out_dir / "healthy"
     elif args.health_stat == "unhealthy":
         data = get_group(data_all, "unhealthy")
+        data = data[data["smoking_status"] == "ex_smoker"]
         main_out_dir = main_out_dir / "unhealthy"
     elif args.health_stat == "all":
         data = get_group(data_all, "all")
+        data = data[data["smoking_status"] == "ex_smoker"]
         main_out_dir = main_out_dir / "all"
     else:
         raise ValueError("Invalid health status: " + args.heath_stat)
@@ -55,28 +58,39 @@ def main(args):
     else:
         main_out_dir = main_out_dir / "not-normalised"
 
-
     run_funcs = {
         runs[0]:
         lambda: (
-            demographics.calc_demographics(data.copy(deep=True), demo_params, out_path,
-                                           args.group_by),
+            demographics.calc_demographics(data.copy(deep=True), demo_params,
+                                           out_path, args.group_by),
             flowchart.make_chart(data_all.copy(deep=True), out_path),
-            reference_values.create_table(data.copy(deep=True), bps, out_path, args.group_by),
-
+            reference_values.create_table(data.copy(deep=True), bps, out_path,
+                                          args.group_by),
         ),
         runs[1]:
-        lambda: (smoking.compare(data.copy(deep=True), bps, out_path)),
+        lambda: (
+            smoking.compare(data.copy(deep=True), bps, out_path),
+            cessation.analyse(data.copy(deep=True), bps, out_path),
+        ),
         runs[2]:
         lambda: (
             univariate.fit_analyse(data.copy(deep=True), bps, "height",
                                    out_path, min_max_params),
-            univariate.fit_analyse(data.copy(deep=True), bps, "age",
-                                   out_path, min_max_params),
+            univariate.fit_analyse(data.copy(deep=True), bps, "age", out_path,
+                                   min_max_params),
             univariate.fit_analyse(data.copy(deep=True), bps, "weight",
                                    out_path, min_max_params),
-            univariate.fit_analyse(data.copy(deep=True), bps, "bmi", out_path, min_max_params),
+            univariate.fit_analyse(data.copy(deep=True), bps, "bmi", out_path,
+                                   min_max_params),
             univariate.fit_analyse(data.copy(deep=True), bps, "pack_years",
+                                   out_path, min_max_params),
+            univariate.fit_analyse(data.copy(deep=True), bps, "fev1",
+                                   out_path, min_max_params),
+            univariate.fit_analyse(data.copy(deep=True), bps, "fvc",
+                                   out_path, min_max_params),
+            univariate.fit_analyse(data.copy(deep=True), bps, "fev1_fvc",
+                                   out_path, min_max_params),
+            univariate.fit_analyse(data.copy(deep=True), bps, "fev1_pp",
                                    out_path, min_max_params),
             multivariate.fit_analyse(data.copy(deep=True), bps, out_path,
                                      min_max_params),
@@ -87,7 +101,8 @@ def main(args):
         lambda: (
             percentile.make_plots(data.copy(deep=True), bps, out_path),
             violin.make_plots(data.copy(deep=True), bps, out_path),
-            regression.make_plots(data.copy(deep=True), bps, out_path, min_max_params),
+            regression.make_plots(data.copy(deep=True), bps, out_path,
+                                  min_max_params),
         ),
     }
 
@@ -100,7 +115,8 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Analyse Bronchial Parameters.")
+    parser = argparse.ArgumentParser(
+        description="Analyse Bronchial Parameters.")
     parser.add_argument("in_file", type=str, help="Input database csv.")
     parser.add_argument("out_directory",
                         type=str,
@@ -122,7 +138,10 @@ if __name__ == "__main__":
         choices=group_opts,
         help="Split data by. Default: smoking_status.",
     )
-    parser.add_argument("--health_stat", default="healthy", choices=["healthy", "unhealthy", "all"], help="Health status.")
+    parser.add_argument("--health_stat",
+                        default="healthy",
+                        choices=["healthy", "unhealthy", "all"],
+                        help="Health status.")
     parser.add_argument("--normalised",
                         action="store_true",
                         help="Normalise parameters")
