@@ -5,7 +5,7 @@ import logging.config
 import pandas as pd
 from pathlib import Path
 
-from data.util.dataframe import get_healthy, normalise_bps
+from data.util.dataframe import get_group, normalise_bps
 from features.descriptive import demographics, flowchart, reference_values
 from features.comparative import smoking
 from models.linear import univariate, multivariate
@@ -34,12 +34,17 @@ def main(args):
     main_out_dir = Path(args.out_directory)
 
     # Only use healthy participants if specified
-    if args.healthy:
-        data = get_healthy(data_all)
+    if args.health_stat == "healthy":
+        data = get_group(data_all, "healthy")
         main_out_dir = main_out_dir / "healthy"
-    else:
-        data = data_all.copy()
+    elif args.health_stat == "unhealthy":
+        data = get_group(data_all, "unhealthy")
+        main_out_dir = main_out_dir / "unhealthy"
+    elif args.health_stat == "all":
+        data = get_group(data_all, "all")
         main_out_dir = main_out_dir / "all"
+    else:
+        raise ValueError("Invalid health status: " + args.heath_stat)
 
     main_out_dir = main_out_dir / args.group_by
 
@@ -117,7 +122,7 @@ if __name__ == "__main__":
         choices=group_opts,
         help="Split data by. Default: smoking_status.",
     )
-    parser.add_argument("--healthy", action="store_true", help="Healthy only")
+    parser.add_argument("--health_stat", default="healthy", choices=["healthy", "unhealthy", "all"], help="Health status.")
     parser.add_argument("--normalised",
                         action="store_true",
                         help="Normalise parameters")
