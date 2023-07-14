@@ -96,12 +96,12 @@ df['pack_years'] = df['packyears_cumulative_adu_c_22'].fillna(
             df['packyears_cumulative_adu_c_22_3'].fillna(
                 df['packyears_cumulative_adu_c_22_4']))))
 
-df['smoking_end-age'] = df['smoking_endage_adu_c_22'].fillna(
+df['smoking_end_age'] = df['smoking_endage_adu_c_22'].fillna(
     df['smoking_endage_adu_c_2'].fillna(df['smoking_endage_adu_c_22_2'].fillna(
         df['smoking_endage_adu_c_22_3'].fillna(
             df['smoking_endage_adu_c_22_4']))))
 
-df['smoking_start-age'] = df['smoking_startage_adu_c_22'].fillna(
+df['smoking_start_age'] = df['smoking_startage_adu_c_22'].fillna(
     df['smoking_startage_adu_c_2'].fillna(
         df['smoking_startage_adu_c_22_2'].fillna(
             df['smoking_startage_adu_c_22_3'].fillna(
@@ -114,8 +114,8 @@ df['smoking_duration'] = df['smoking_duration_adu_c_22'].fillna(
                 df['smoking_duration_adu_c_22_4']))))
 
 # Calculate missing pack years
-duration = df['smoking_end-age'].fillna(df['age']) - df['smoking_start-age']
-mask = df['smoking_start-age'].notna() & df['smoking_duration'].isna()
+duration = df['smoking_end_age'].fillna(df['age']) - df['smoking_start_age']
+mask = df['smoking_start_age'].notna() & df['smoking_duration'].isna()
 df.loc[mask, 'smoking_duration'] = duration[mask]
 
 df['max_cig_freq'] = df[[
@@ -175,6 +175,8 @@ def get_smoking_status(row):
     else:
         return None
 
+df["smoking_cessation_duration"] = np.nan
+df.loc[df.ex_smoker == True, "smoking_cessation_duration"] = df["age"] - df["smoking_end_age"]
 
 df["smoking_status"] = df.apply(get_smoking_status, axis=1)
 
