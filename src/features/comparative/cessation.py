@@ -62,21 +62,17 @@ def analyse(data: pd.DataFrame, bps: list, out_path: Path):
                 ax.plot(x_values, y_values, color='blue')
             else:
                 ax.plot(x_values, y_values, color='red')
-            # sns.regplot(x=data_param['smoking_cessation_duration'],
-            #             y=model.predict(sm.add_constant(X)),
-            #             scatter=False,
-            #             ax=ax)
             results_data = pd.DataFrame.from_dict(results)
             results_data = results_data.round(4)
 
             # Output results to a CSV file
             results_data.to_csv(str(out_path / f"cessation_results_mlr_{group}.csv"), index=False)
+
         ax.set_ylim(data[param].quantile(0.1), data[param].quantile(0.9))
         ax.set_title(f"{param} with smoking cessation")
         ax.set_xlabel("Duration of smoking cessation")
         ax.set_ylabel(param)
         plt.tight_layout()
         fig.savefig(str(out_path / f"smoking_cessation_{param}.jpg"), dpi=300)
-
 
 # Create a pandas DataFrame from the results dictionary

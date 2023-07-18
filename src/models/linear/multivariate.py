@@ -69,4 +69,4 @@ def fit_analyse(data, bps, out_path, min_max_params=False):
 
     df_results = pd.DataFrame(results)
     df_results.round(4)
-    breakpoint()
+    df_results.to_csv(out_path / "multivariate_results.csv")
