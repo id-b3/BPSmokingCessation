@@ -2,7 +2,6 @@
 import pandas as pd
 import numpy as np
 from scipy.stats import ttest_ind, t
-from pathlib import Path
 
 
 def calc_demographics(data, params, out_dir, split_by):

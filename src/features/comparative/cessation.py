@@ -11,8 +11,7 @@ def analyse(data: pd.DataFrame, bps: list, out_path: Path):
     # Create empty lists to store results
     results = []
 
-    data['years_since_quit'] = data['age'] - data['smoking_end-age']
-    data['years_quit'] = pd.cut(data['years_since_quit'],
+    data['years_quit'] = pd.cut(data['smoking_cessation_duration'],
                                 [0, 5, 10, 15, 20, 100],
                                 right=False,
                                 labels=[
@@ -20,41 +19,59 @@ def analyse(data: pd.DataFrame, bps: list, out_path: Path):
                                     '15-20 years', '20+ years'
                                 ])
 
+    results = {}
+
     # Loop over each parameter and calculate Pearson's correlation coefficient and R-squared
     for param in bps:
-        data_param = data.dropna(
-            subset=[param, 'years_since_quit', 'pack_year_categories'])
-
-        independent_vars = [
-            'sex', 'age', 'height', 'weight', 'pack_year_categories',
-            'years_since_quit'
-        ]
-
-        formula = f"{param} ~ {' + '.join(independent_vars)}"
-        model = sm.formula.ols(formula=formula, data=data_param).fit()
-        with open(str(out_path / f"cessation_{param}.txt"), "w") as f:
-            f.write(model.summary().as_text())
-        rsquared = model.rsquared
-        pval = round(model.f_pvalue, 4)
-
-        # Create a dictionary to store results
-        result = {'Parameter': param, 'R-squared': rsquared, 'P-value': pval}
-        results.append(result)
-
         fig, ax = plt.subplots(figsize=(12, 6))
+        for group in ["healthy", "unhealthy"]:
+            data_group = data[data["health_status"] == group]
+            data_param = data_group.dropna(
+                subset=[param, 'smoking_cessation_duration', 'pack_year_categories'])
 
-        x_values = np.linspace(data["years_since_quit"].min(),
-                               data["years_since_quit"].max(), 100)
-        y_values = model.params['Intercept'] + model.params['sex[T.Male]'] + (
-            60 * model.params['age']
-        ) + (1.84 * model.params['height']) + (82 * model.params['weight']) + model.params['years_since_quit'] * x_values
+            independent_vars = [
+                'sex', 'age', 'height', 'weight', 'pack_year_categories',
+            ]
 
-        ax.plot(x_values, y_values, color='red')
-        # sns.regplot(x=data_param['years_since_quit'],
-        #             y=model.predict(sm.add_constant(X)),
-        #             scatter=False,
-        #             ax=ax)
-        ax.set_ylim(data_param[param].min(), data_param[param].max())
+            formula = f"{param} ~ {' + '.join(independent_vars)}"
+            model_init = sm.formula.ols(formula=formula, data=data_param).fit()
+            formula = f"{param} ~ {' + '.join(independent_vars + ['smoking_cessation_duration'])}"
+            model = sm.formula.ols(formula=formula, data=data_param).fit()
+            with open(str(out_path / f"cessation_{param}_{group}.txt"), "w") as f:
+                f.write(model.summary().as_text())
+
+            # Add the change in R2, AIC and BIC to the dataframe
+            rsq_change = model.rsquared_adj - model_init.rsquared_adj
+            aic_change = model.aic - model_init.aic
+            bic_change = model.bic - model_init.bic
+
+            # Save the results to a dictionary
+            results[param] = {
+                "rsq_change": rsq_change,
+                "aic_change": aic_change,
+                "bic_change": bic_change,
+            }
+
+            x_values = np.linspace(data["smoking_cessation_duration"].min(),
+                                   data["smoking_cessation_duration"].max(), 100)
+            y_values = model.params['Intercept'] + model.params['sex[T.Male]'] + (
+                60 * model.params['age']
+            ) + (1.84 * model.params['height']) + (82 * model.params['weight']) + model.params['smoking_cessation_duration'] * x_values
+
+            if group == "healthy":
+                ax.plot(x_values, y_values, color='blue')
+            else:
+                ax.plot(x_values, y_values, color='red')
+            # sns.regplot(x=data_param['smoking_cessation_duration'],
+            #             y=model.predict(sm.add_constant(X)),
+            #             scatter=False,
+            #             ax=ax)
+            results_data = pd.DataFrame.from_dict(results)
+            results_data = results_data.round(4)
+
+            # Output results to a CSV file
+            results_data.to_csv(str(out_path / f"cessation_results_mlr_{group}.csv"), index=False)
+        ax.set_ylim(data[param].quantile(0.1), data[param].quantile(0.9))
         ax.set_title(f"{param} with smoking cessation")
         ax.set_xlabel("Duration of smoking cessation")
         ax.set_ylabel(param)
@@ -63,8 +80,3 @@ def analyse(data: pd.DataFrame, bps: list, out_path: Path):
 
 
 # Create a pandas DataFrame from the results dictionary
-    results_data = pd.DataFrame.from_dict(results)
-    results_data = results_data.round(2)
-
-    # Output results to a CSV file
-    results_data.to_csv(str(out_path / "cessation_results_mlr.csv"), index=False)

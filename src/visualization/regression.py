@@ -46,7 +46,7 @@ def make_plots(data: pd.DataFrame,
 
     for param in tqdm(bps):
 
-        for var in ["age", "height", "weight", "bmi"]:
+        for var in ["age", "height", "weight", "fev1_fvc", "fev1_pp", "smoking_cessation_duration"]:
             data_reg = data[[var, param, "smoking_status", "sex"]].dropna()
             r, p = stats.pearsonr(data_reg[var], data_reg[param])
 
@@ -54,11 +54,12 @@ def make_plots(data: pd.DataFrame,
                 data=data_reg,
                 x=var,
                 y=param,
-                hue="smoking_status",
+                hue="sex",
                 truncate=False,
                 scatter=debug,
                 scatter_kws={"alpha": 0.3},
             )
+            fig.set(ylim = (data_reg[param].quantile(0.1), data_reg[param].quantile(0.9)))
             logger.debug("Pearson for {} and {}: {}".format(var, param, r))
             sns.despine(left=True)
             if min_max_params:
@@ -66,22 +67,4 @@ def make_plots(data: pd.DataFrame,
             prettify_axes(fig)
             fig.fig.savefig(f"{str(out_path / param)}_{var}_regression.png",
                             dpi=300)
-            plt.close()
-
-            fig2 = sns.lmplot(
-                data=data_reg,
-                x=var,
-                y=param,
-                hue="sex",
-                palette=sns.color_palette(["salmon", "lightblue"]),
-                truncate=False,
-                scatter=debug,
-                scatter_kws={"alpha": 0.3},
-            )
-            sns.despine(left=True)
-            if min_max_params:
-                fig2.set(ylim=(0, 1))
-            prettify_axes(fig2)
-            fig2.fig.savefig(
-                f"{str(out_path / param)}_{var}_sex_regression.png", dpi=300)
             plt.close()
