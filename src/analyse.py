@@ -5,13 +5,15 @@ import logging.config
 import pandas as pd
 from pathlib import Path
 
-from data.util.dataframe import get_group, normalise_bps
-from features.descriptive import demographics, flowchart, reference_values
-from features.comparative import smoking, cessation
+from data.util.dataframe import get_group
+from features.descriptive import demographics, flowchart
+from features.comparative import cessation
 from models.linear import univariate, multivariate
-from visualization import violin, regression, percentile
+from visualization import violin, regression
 
-runs = ["descriptive", "comparative", "regression", "clustering", "visualisation"]
+runs = [
+    "descriptive", "comparative", "regression", "clustering", "visualisation"
+]
 demo_params = [
     "age",
     "height",
@@ -39,7 +41,12 @@ logger = logging.getLogger("BronchialParameters")
 
 
 def main(args):
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+
     data_all = pd.read_csv(args.in_file, low_memory=False)
+    # Filter the dataset by pack years.
+    data_all = data_all[data_all.pack_years >= args.pack_years]
     bps = args.param_list.split(",")
     main_out_dir = Path(args.out_directory)
 
@@ -58,24 +65,24 @@ def main(args):
         raise ValueError("Invalid health status: " + args.heath_stat)
 
     run_funcs = {
-        runs[0]: lambda: (
-            demographics.calc_demographics(data.copy(deep=True), demo_params, out_path, "health_status"),
+        runs[0]:
+        lambda: (
+            demographics.calc_demographics(data.copy(deep=True), demo_params,
+                                           out_path, "health_status"),
             flowchart.make_chart(data_all.copy(deep=True), out_path),
         ),
-        runs[1]: lambda: (cessation.analyse(data.copy(deep=True), bps, out_path),),
-        runs[2]: lambda: (
-            univariate.fit_analyse(
-                data.copy(deep=True), bps, "fev1", out_path, min_max_params
-            ),
-            univariate.fit_analyse(
-                data.copy(deep=True), bps, "fvc", out_path, min_max_params
-            ),
-            univariate.fit_analyse(
-                data.copy(deep=True), bps, "fev1_fvc", out_path, min_max_params
-            ),
-            univariate.fit_analyse(
-                data.copy(deep=True), bps, "fev1_pp", out_path, min_max_params
-            ),
+        runs[1]:
+        lambda: (cessation.analyse(data.copy(deep=True), bps, out_path), ),
+        runs[2]:
+        lambda: (
+            univariate.fit_analyse(data.copy(deep=True), bps, "fev1", out_path,
+                                   min_max_params),
+            univariate.fit_analyse(data.copy(deep=True), bps, "fvc", out_path,
+                                   min_max_params),
+            univariate.fit_analyse(data.copy(deep=True), bps, "fev1_fvc",
+                                   out_path, min_max_params),
+            univariate.fit_analyse(data.copy(deep=True), bps, "fev1_pp",
+                                   out_path, min_max_params),
             univariate.fit_analyse(
                 data.copy(deep=True),
                 bps,
@@ -83,14 +90,16 @@ def main(args):
                 out_path,
                 min_max_params,
             ),
-            multivariate.fit_analyse(
-                data.copy(deep=True), bps, out_path, min_max_params
-            ),
+            multivariate.fit_analyse(data.copy(deep=True), bps, out_path,
+                                     min_max_params),
         ),
-        runs[3]: lambda: (),
-        runs[4]: lambda: (
+        runs[3]:
+        lambda: (),
+        runs[4]:
+        lambda: (
             violin.make_plots(data.copy(deep=True), bps, out_path),
-            regression.make_plots(data.copy(deep=True), bps, out_path, min_max_params),
+            regression.make_plots(data.copy(deep=True), bps, out_path,
+                                  min_max_params),
         ),
     }
 
@@ -103,9 +112,12 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Analyse Bronchial Parameters.")
+    parser = argparse.ArgumentParser(
+        description="Analyse Bronchial Parameters.")
     parser.add_argument("in_file", type=str, help="Input database csv.")
-    parser.add_argument("out_directory", type=str, help="Output report destination.")
+    parser.add_argument("out_directory",
+                        type=str,
+                        help="Output report destination.")
     parser.add_argument(
         "--param_list",
         type=str,
@@ -125,5 +137,10 @@ if __name__ == "__main__":
         choices=["healthy", "unhealthy", "all"],
         help="Health status.",
     )
+    parser.add_argument("--pack_years",
+                        type=float,
+                        default=5.0,
+                        help="Pack years.")
+    parser.add_argument("--debug", action="store_true", help="Debug mode.")
     args = parser.parse_args()
     main(args)
