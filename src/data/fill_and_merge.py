@@ -175,10 +175,9 @@ def get_smoking_status(row):
     else:
         return None
 
-df["smoking_cessation_duration"] = np.nan
-df.loc[df.ex_smoker == True, "smoking_cessation_duration"] = df["age"] - df["smoking_end_age"]
-
 df["smoking_status"] = df.apply(get_smoking_status, axis=1)
+df["smoking_cessation_duration"] = df["age"] - df["smoking_end_age"]
+df.loc[df.smoking_status != "ex_smoker", "smoking_cessation_duration"] = np.nan
 
 # Split pack-years to categories
 py_labels = ['0', '1-10', '10-20', '20+']

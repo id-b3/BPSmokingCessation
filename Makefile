@@ -22,9 +22,8 @@ BP_HEALTHY:=$(DPRC)healthy_bp_db.csv
 BP_DISEASED:=$(DPRC)diseased_bp_db.csv
 
 # Study target
-HEALTH_STATUS ?= "healthy"
+HEALTH_STATUS ?= "all"
 NORMALISE_DATA ?= false
-GROUP_BY ?= "smoking_status"
 
 # Params to analyse
 PARAMS:=bp_pi10,bp_wt_avg,bp_la_avg,bp_wap_avg
@@ -57,16 +56,16 @@ data: ; $(MAKE) -f ./src/data/make_data.mk -C $(PROJECT_DIR)
 run_study: data_describe data_visualise data_analyse data_model
 
 ## Summary of every variable in the dataset
-data_describe: ; ./src/analyse.py $(BP_FINAL) $(REPORTS) --health_stat $(HEALTH_STATUS) $(NORMALISE_FLAG) --param_list $(PARAMS) --to_run descriptive --group_by $(GROUP_BY)
+data_describe: ; ./src/analyse.py $(BP_FINAL) $(REPORTS) --health_stat $(HEALTH_STATUS) $(NORMALISE_FLAG) --param_list $(PARAMS) --to_run descriptive
 
 ## Create Figures
-data_visualise: ; ./src/analyse.py $(BP_FINAL) $(REPORTS) --health_stat $(HEALTH_STATUS) $(NORMALISE_FLAG) --param_list $(PARAMS) --to_run visualisation --group_by $(GROUP_BY)
+data_visualise: ; ./src/analyse.py $(BP_FINAL) $(REPORTS) --health_stat $(HEALTH_STATUS) $(NORMALISE_FLAG) --param_list $(PARAMS) --to_run visualisation
 
 ## Run the comparative analysis
-data_analyse: ; ./src/analyse.py $(BP_FINAL) $(REPORTS) --health_stat $(HEALTH_STATUS) $(NORMALISE_FLAG) --param_list $(PARAMS) --to_run comparative --group_by $(GROUP_BY)
+data_analyse: ; ./src/analyse.py $(BP_FINAL) $(REPORTS) --health_stat $(HEALTH_STATUS) $(NORMALISE_FLAG) --param_list $(PARAMS) --to_run comparative
 
 ## Build and evaluate models
-data_model: ; ./src/analyse.py $(BP_FINAL) $(REPORTS) --health_stat $(HEALTH_STATUS) $(NORMALISE_FLAG) --param_list $(PARAMS) --to_run regression clustering --group_by $(GROUP_BY)
+data_model: ; ./src/analyse.py $(BP_FINAL) $(REPORTS) --health_stat $(HEALTH_STATUS) $(NORMALISE_FLAG) --param_list $(PARAMS) --to_run regression clustering
 
 ## Test the variables for normality
 test_norm: ; $(MAKE) -f ./src/features/test_norm.mk -C $(PROJECT_DIR)
