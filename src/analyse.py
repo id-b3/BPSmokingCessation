@@ -139,7 +139,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--pack_years",
                         type=float,
-                        default=5.0,
+                        default=10.0,
                         help="Pack years.")
     parser.add_argument("--debug", action="store_true", help="Debug mode.")
     args = parser.parse_args()

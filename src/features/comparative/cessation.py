@@ -67,12 +67,9 @@ def analyse(data: pd.DataFrame, bps: list, out_path: Path):
 
             # Output results to a CSV file
             results_data.to_csv(str(out_path / f"cessation_results_mlr_{group}.csv"), index=False)
-
         ax.set_ylim(data[param].quantile(0.1), data[param].quantile(0.9))
         ax.set_title(f"{param} with smoking cessation")
         ax.set_xlabel("Duration of smoking cessation")
         ax.set_ylabel(param)
         plt.tight_layout()
         fig.savefig(str(out_path / f"smoking_cessation_{param}.jpg"), dpi=300)
-
-# Create a pandas DataFrame from the results dictionary

@@ -44,11 +44,11 @@ df.drop([
         inplace=True)
 
 # Calc mean BPs
-df['bp_wap_avg'] = df[['bp_wap_3', 'bp_wap_4', 'bp_wap_5']].mean(axis=1)
-df['bp_la_avg'] = df[['bp_la_3', 'bp_la_4', 'bp_la_5']].mean(axis=1)
-df['bp_wt_avg'] = df[['bp_wt_3', 'bp_wt_4', 'bp_wt_5']].mean(axis=1)
-df['bp_ir_avg'] = df[['bp_ir_3', 'bp_ir_4', 'bp_ir_5']].mean(axis=1)
-df['bp_or_avg'] = df[['bp_or_3', 'bp_or_4', 'bp_or_5']].mean(axis=1)
+df['bp_wap_avg'] = df[['bp_wap_3', 'bp_wap_4', 'bp_wap_5', 'bp_wap_6']].mean(axis=1)
+df['bp_la_avg'] = df[['bp_la_3', 'bp_la_4', 'bp_la_5', 'bp_la_6']].mean(axis=1)
+df['bp_wt_avg'] = df[['bp_wt_3', 'bp_wt_4', 'bp_wt_5', 'bp_la_6']].mean(axis=1)
+df['bp_ir_avg'] = df[['bp_ir_3', 'bp_ir_4', 'bp_ir_5', 'bp_la_6']].mean(axis=1)
+df['bp_or_avg'] = df[['bp_or_3', 'bp_or_4', 'bp_or_5', 'bp_la_6']].mean(axis=1)
 
 # Create age categories
 age_label_5 = [
