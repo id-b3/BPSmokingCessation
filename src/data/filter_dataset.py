@@ -14,6 +14,8 @@ sizes = {}
 df = df[df.smoking_status == "ex_smoker"]
 # ------ Remove participants with missing demographic data
 df = df.dropna(subset=["age", "sex", "height", "weight"])
+df = df[df.smoking_cessation_duration <= 50]
+df = df[df.bmi <= 45]
 df = df[df.pack_years >= 1]
 # ------ REMOVE segmentations with errors
 sizes["total"] = len(df)

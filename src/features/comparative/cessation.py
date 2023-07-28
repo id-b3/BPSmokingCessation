@@ -22,8 +22,11 @@ def analyse(data: pd.DataFrame, bps: list, out_path: Path):
     results = {}
 
     # Loop over each parameter and calculate Pearson's correlation coefficient and R-squared
-    for param in bps:
-        fig, ax = plt.subplots(figsize=(12, 6))
+    fig = plt.figure(figsize=(8,6))
+    gs = fig.add_gridspec(2, 2, hspace=0.05, wspace=0.25)
+    axs = gs.subplots(sharex=True)
+    
+    for idx, param in enumerate(bps):
         for group in ["healthy", "unhealthy"]:
             data_group = data[data["health_status"] == group]
             data_param = data_group.dropna(
@@ -59,17 +62,18 @@ def analyse(data: pd.DataFrame, bps: list, out_path: Path):
             ) + (1.84 * model.params['height']) + (82 * model.params['weight']) + model.params['smoking_cessation_duration'] * x_values
 
             if group == "healthy":
-                ax.plot(x_values, y_values, color='blue')
+                axs[(idx//2), (idx%2)].plot(x_values, y_values, color='blue')
             else:
-                ax.plot(x_values, y_values, color='red')
+                axs[(idx//2), (idx%2)].plot(x_values, y_values, color='red')
             results_data = pd.DataFrame.from_dict(results)
             results_data = results_data.round(4)
 
             # Output results to a CSV file
             results_data.to_csv(str(out_path / f"cessation_results_mlr_{group}.csv"), index=False)
-        ax.set_ylim(data[param].quantile(0.1), data[param].quantile(0.9))
-        ax.set_title(f"{param} with smoking cessation")
-        ax.set_xlabel("Duration of smoking cessation")
-        ax.set_ylabel(param)
-        plt.tight_layout()
-        fig.savefig(str(out_path / f"smoking_cessation_{param}.jpg"), dpi=300)
+
+        axs[(idx//2), (idx%2)].set_ylim(data[param].quantile(0.1), data[param].quantile(0.9))
+        axs[(idx//2), (idx%2)].set_ylabel(param.replace('_avg', '').replace('bp_', '').upper())
+        axs[(idx//2), (idx%2)].grid(axis='x', color='0.95')
+    plt.legend(['Healthy', 'Unhealthy'])
+    fig.savefig(str(out_path / f"smoking_cessation.jpg"), dpi=300)
+
