@@ -73,6 +73,7 @@ def analyse(data: pd.DataFrame, bps: list, out_path: Path):
 
         axs[(idx//2), (idx%2)].set_ylim(data[param].quantile(0.1), data[param].quantile(0.9))
         axs[(idx//2), (idx%2)].set_ylabel(param.replace('_avg', '').replace('bp_', '').upper())
+        axs[(idx//2), (idx%2)].set_xlabel("Smoking Cessation Duration")
         axs[(idx//2), (idx%2)].grid(axis='x', color='0.95')
     plt.legend(['Healthy', 'Unhealthy'])
     fig.savefig(str(out_path / f"smoking_cessation.jpg"), dpi=300)
