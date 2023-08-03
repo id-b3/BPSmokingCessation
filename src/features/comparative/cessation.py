@@ -70,6 +70,7 @@ def analyse(data: pd.DataFrame, bps: list, out_path: Path):
 
             # Output results to a CSV file
             results_data.to_csv(str(out_path / f"cessation_results_mlr_{group}.csv"), index=False)
+            sm.graphics.plot_regress_exog(model, 'smoking_cessation_duration', fig=plt.figure(figsize=(12,10))).savefig(str(out_path / f"smoking_cessation_residuals_{group}_{param}.jpg"), dpi=300)
 
         axs[(idx//2), (idx%2)].set_ylim(data[param].quantile(0.1), data[param].quantile(0.9))
         axs[(idx//2), (idx%2)].set_ylabel(param.replace('_avg', '').replace('bp_', '').upper())
