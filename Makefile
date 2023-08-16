@@ -70,6 +70,8 @@ data_model: ; ./src/analyse.py $(BP_FINAL) $(REPORTS) --health_stat $(HEALTH_STA
 ## Test the variables for normality
 test_norm: ; $(MAKE) -f ./src/features/test_norm.mk -C $(PROJECT_DIR)
 
+clean: clean_data clean_reports
+
 ## Delete all compiled Python files
 clean_data:
 	find . -type f -name "*.py[co]" -delete

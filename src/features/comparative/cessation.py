@@ -2,12 +2,13 @@
 
 from pathlib import Path
 import pandas as pd
-import numpy as np
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def analyse(data: pd.DataFrame, bps: list, out_path: Path):
+
     # Create empty lists to store results
     results = []
 
@@ -22,12 +23,20 @@ def analyse(data: pd.DataFrame, bps: list, out_path: Path):
     results = {}
 
     # Loop over each parameter and calculate Pearson's correlation coefficient and R-squared
-    fig = plt.figure(figsize=(8,6))
-    gs = fig.add_gridspec(2, 2, hspace=0.05, wspace=0.25)
+    fig = plt.figure(figsize=(8,8))
+    gs = fig.add_gridspec(3, 2, hspace=0.05, wspace=0.25)
     axs = gs.subplots(sharex=True)
-    
+
+    fig_res = plt.figure(figsize=(8,8))
+    gs_res = fig_res.add_gridspec(3, 2, hspace=0.15, wspace=0.25)
+    axs_res = gs_res.subplots()
+
+    bps = bps + ['fev1_pp', 'fev1_fvc']
+
     for idx, param in enumerate(bps):
         for group in ["healthy", "unhealthy"]:
+            axis = axs[(idx//2), (idx%2)]
+            axis_res = axs_res[(idx//2), (idx%2)]
             data_group = data[data["health_status"] == group]
             data_param = data_group.dropna(
                 subset=[param, 'smoking_cessation_duration', 'pack_year_categories'])
@@ -55,27 +64,31 @@ def analyse(data: pd.DataFrame, bps: list, out_path: Path):
                 "bic_change": bic_change,
             }
 
-            x_values = np.linspace(data["smoking_cessation_duration"].min(),
-                                   data["smoking_cessation_duration"].max(), 100)
-            y_values = model.params['Intercept'] + model.params['sex[T.Male]'] + (
-                60 * model.params['age']
-            ) + (1.84 * model.params['height']) + (82 * model.params['weight']) + model.params['smoking_cessation_duration'] * x_values
-
+            df_resid = data_param.copy()
+            df_resid["fitted"] = model.fittedvalues
+            df_resid = df_resid[(df_resid.age >= 45) & (df_resid.age <= 70)]
             if group == "healthy":
-                axs[(idx//2), (idx%2)].plot(x_values, y_values, color='blue')
+                sns.regplot(data=df_resid, x='smoking_cessation_duration', y="fitted", color='blue', scatter=False, ax=axis, label="Healthy")
+                sns.regplot(x=model.fittedvalues, y=model.resid, color="blue", scatter_kws={'alpha': 0.1}, ax=axis_res, label="Healthy")
             else:
-                axs[(idx//2), (idx%2)].plot(x_values, y_values, color='red')
+                sns.regplot(data=df_resid, x='smoking_cessation_duration', y="fitted", color='red', scatter=False, ax=axis, label="Unhealthy")
+                sns.regplot(x=model.fittedvalues, y=model.resid, color="red", scatter_kws={'alpha': 0.1}, ax=axis_res, label="Unhealthy")
+
             results_data = pd.DataFrame.from_dict(results)
             results_data = results_data.round(4)
 
             # Output results to a CSV file
             results_data.to_csv(str(out_path / f"cessation_results_mlr_{group}.csv"), index=False)
-            sm.graphics.plot_regress_exog(model, 'smoking_cessation_duration', fig=plt.figure(figsize=(12,10))).savefig(str(out_path / f"smoking_cessation_residuals_{group}_{param}.jpg"), dpi=300)
 
-        axs[(idx//2), (idx%2)].set_ylim(data[param].quantile(0.1), data[param].quantile(0.9))
-        axs[(idx//2), (idx%2)].set_ylabel(param.replace('_avg', '').replace('bp_', '').upper())
-        axs[(idx//2), (idx%2)].set_xlabel("Smoking Cessation Duration")
-        axs[(idx//2), (idx%2)].grid(axis='x', color='0.95')
-    plt.legend(['Healthy', 'Unhealthy'])
+        axis.set_ylim(data[param].quantile(0.05), data[param].quantile(0.9))
+        axis.set_ylabel(param.replace('_avg', '').replace('bp_', '').replace('fev1_pp', 'fev1 pp').replace('fev1_fvc', 'fev1/fvc').upper(), fontweight='bold')
+        axis.set_xlabel("Smoking Cessation Duration")
+        axis.grid(axis='x', color='0.95')
+        axis_res.set_ylabel(param.replace('_avg', '').replace('bp_', '').replace('fev1_pp', 'fev1 pp').replace('fev1_fvc', 'fev1/fvc').upper(), fontweight='bold')
+        axis_res.grid(axis='x', color='0.95')
+    axs[0, 0].legend()
+    axs_res[0, 0].legend()
     fig.savefig(str(out_path / f"smoking_cessation.jpg"), dpi=300)
+    fig_res.savefig(str(out_path / f"smoking_cessation_res.jpg"), dpi=300)
+    plt.show()
 
